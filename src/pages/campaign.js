@@ -136,7 +136,7 @@ export default function CampaignPage() {
           {isFilterOpen ? 'Hide Filters' : 'Show Filters'}
         </Button>
         <Button colorScheme="blue" onClick={() => openModal()}>
-          Create New Campaign
+          Add New Campaign
         </Button>
       </Flex>
 
