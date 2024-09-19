@@ -169,7 +169,7 @@ export default function CampaignPage() {
               width={{ base: '100%', md: '30%' }}
             >
               <option value="upcoming">Upcoming</option>
-              <option value="active">Active</option>
+              <option value="Active">Active</option>
               <option value="done">Done</option>
             </Select>
           </Flex>
