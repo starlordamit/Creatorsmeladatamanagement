@@ -275,7 +275,7 @@ export default function UserManagementPage() {
         overflow="auto"
         bg={cardBg}
         shadow="sm"
-        maxHeight={{ base: "400px", md: "600px" }}
+        maxHeight="74vh"
       >
         <Table variant="simple" size="sm">
           <Thead bg={tableHeaderBg}>

@@ -455,7 +455,7 @@ const CreatorsPage = () => {
           overflow="auto"
           bg={cardBg}
           shadow="sm"
-          maxHeight={{ base: "400px", md: "600px" }}
+          maxHeight="74vh"
           border={`1px solid ${borderColor}`}
         >
           <Table
