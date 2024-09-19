@@ -1,6 +1,6 @@
 // components/SidebarWithHeader.jsx
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -22,8 +22,8 @@ import {
   Icon,
   Heading,
   Tooltip,
-  useColorModeValue
-} from '@chakra-ui/react';
+  useColorModeValue,
+} from "@chakra-ui/react";
 import {
   FiMenu,
   FiChevronDown,
@@ -39,9 +39,9 @@ import {
   FiTrendingUp,
   FiSpeaker,
   FiLogOut,
-} from 'react-icons/fi';
-import { useRouter } from 'next/router';
-import { useAuth } from '../context/AuthContext';
+} from "react-icons/fi";
+import { useRouter } from "next/router";
+import { useAuth } from "../context/AuthContext";
 
 const SidebarWithHeader = ({ children }) => {
   // **Hook Calls at the Top Level**
@@ -49,31 +49,25 @@ const SidebarWithHeader = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user, logout } = useAuth();
   const router = useRouter();
-  const [isMobile] = useMediaQuery('(max-width: 768px)');
+  const [isMobile] = useMediaQuery("(max-width: 768px)");
 
   const [expanded, setExpanded] = useState(true); // Default to expanded
   const [mounted, setMounted] = useState(false); // To track if component is mounted
 
   // Predefine all useColorModeValue calls outside conditionals
-  const bgSidebar = useColorModeValue('white', 'gray.800'); // Sidebar background
-  const bgMain = useColorModeValue('gray.50', 'gray.900'); // Main content background
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const textColor = useColorModeValue('gray.700', 'white');
-  const hoverBg = useColorModeValue('gray.100', 'gray.700');
-  const activeBg = useColorModeValue('teal.100', 'teal.700');
-  const iconColorActive = useColorModeValue('teal.500', 'teal.200');
-  const bgHeader = useColorModeValue('white', 'gray.800');
-  const borderBottomColor = useColorModeValue('gray.200', 'gray.700');
-
-
-
-
-
-  
+  const bgSidebar = useColorModeValue("white", "gray.800"); // Sidebar background
+  const bgMain = useColorModeValue("gray.50", "gray.900"); // Main content background
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const textColor = useColorModeValue("gray.700", "white");
+  const hoverBg = useColorModeValue("gray.100", "gray.700");
+  const activeBg = useColorModeValue("teal.100", "teal.700");
+  const iconColorActive = useColorModeValue("teal.500", "teal.200");
+  const bgHeader = useColorModeValue("white", "gray.800");
+  const borderBottomColor = useColorModeValue("gray.200", "gray.700");
 
   // Set expanded from localStorage after mount
   useEffect(() => {
-    const savedExpanded = localStorage.getItem('sidebarExpanded');
+    const savedExpanded = localStorage.getItem("sidebarExpanded");
     if (savedExpanded !== null) {
       const parsed = JSON.parse(savedExpanded);
       setExpanded(parsed);
@@ -84,11 +78,11 @@ const SidebarWithHeader = ({ children }) => {
   // Persist expand/collapse state in localStorage
   useEffect(() => {
     if (mounted) {
-      localStorage.setItem('sidebarExpanded', JSON.stringify(expanded));
+      localStorage.setItem("sidebarExpanded", JSON.stringify(expanded));
     }
   }, [expanded, mounted]);
 
-  const [activeKey, setActiveKey] = useState('dashboard');
+  const [activeKey, setActiveKey] = useState("dashboard");
 
   const handleToggle = () => {
     setExpanded(!expanded);
@@ -99,7 +93,9 @@ const SidebarWithHeader = ({ children }) => {
     return string[0].toUpperCase() + string.slice(1);
   };
 
-  const pagePath = capitalizeFirstLetter(router.pathname.split('/')[1] || 'Dashboard');
+  const pagePath = capitalizeFirstLetter(
+    router.pathname.split("/")[1] || "Dashboard"
+  );
 
   // **Prevent rendering until mounted to avoid hydration mismatch**
   if (!mounted) {
@@ -117,7 +113,7 @@ const SidebarWithHeader = ({ children }) => {
         setActiveKey={setActiveKey}
         handleToggle={handleToggle}
         logout={logout} // Pass logout function
-        display={{ base: 'none', md: 'block' }}
+        display={{ base: "none", md: "block" }}
         bgSidebar={bgSidebar} // Passing values as props
         borderColor={borderColor}
         hoverBg={hoverBg}
@@ -166,7 +162,7 @@ const SidebarWithHeader = ({ children }) => {
 
       {/* Main Content */}
       <Box
-        ml={{ base: 0, md: expanded ? '240px' : '60px' }}
+        ml={{ base: 0, md: expanded ? "240px" : "60px" }}
         transition="margin-left 0.3s ease"
         p="4"
       >
@@ -179,7 +175,10 @@ const SidebarWithHeader = ({ children }) => {
           borderRadius="md"
           boxShadow="sm"
         >
-          <Breadcrumb spacing="8px" separator={<FiChevronRight color="gray.500" />}>
+          <Breadcrumb
+            spacing="8px"
+            separator={<FiChevronRight color="gray.500" />}
+          >
             <BreadcrumbItem>
               <BreadcrumbLink href="/">Home</BreadcrumbLink>
             </BreadcrumbItem>
@@ -217,15 +216,15 @@ const SidebarContent = ({
 
   // Set activeKey based on current path
   useEffect(() => {
-    const path = router.pathname.split('/')[1] || 'dashboard';
+    const path = router.pathname.split("/")[1] || "dashboard";
     setActiveKey(path);
   }, [router.pathname, setActiveKey]);
 
   const handleSelect = (eventKey, path) => {
-    if (eventKey === 'logout') {
+    if (eventKey === "logout") {
       // Handle logout
       logout();
-      router.push('/auth/Login');
+      router.push("/auth/Login");
       return;
     }
 
@@ -241,7 +240,7 @@ const SidebarContent = ({
       bg={bgSidebar}
       borderRight="1px"
       borderRightColor={borderColor}
-      w={{ base: isMobile ? 'full' : expanded ? '240px' : '60px' }}
+      w={{ base: isMobile ? "full" : expanded ? "240px" : "60px" }}
       pos="fixed"
       h="full"
       {...rest}
@@ -251,7 +250,7 @@ const SidebarContent = ({
         h="20"
         alignItems="center"
         mx="4"
-        justifyContent={expanded ? 'space-between' : 'center'}
+        justifyContent={expanded ? "space-between" : "center"}
       >
         {/* Toggle Button for Desktop */}
         {!isMobile && (
@@ -290,16 +289,16 @@ const SidebarContent = ({
               key={item.eventKey}
               href="#"
               onClick={() => handleSelect(item.eventKey, item.path)}
-              style={{ textDecoration: 'none' }}
+              style={{ textDecoration: "none" }}
             >
-              <Tooltip label={expanded ? '' : item.label} placement="right">
+              <Tooltip label={expanded ? "" : item.label} placement="right">
                 <Flex
                   align="center"
                   mr={4}
                   p={2.5}
                   mx={1}
                   borderRadius="md"
-                  bg={isActive ? activeBg : 'transparent'}
+                  bg={isActive ? activeBg : "transparent"}
                   color={isActive ? iconColorActive : textColor}
                   cursor="pointer"
                   _hover={{
@@ -325,10 +324,10 @@ const SidebarContent = ({
       <Box position="absolute" bottom="4" w="full">
         <ChakraLink
           href="#"
-          onClick={() => handleSelect('logout', '/auth/Login')}
-          style={{ textDecoration: 'none' }}
+          onClick={() => handleSelect("logout", "/auth/Login")}
+          style={{ textDecoration: "none" }}
         >
-          <Tooltip label={expanded ? '' : 'Logout'} placement="right">
+          <Tooltip label={expanded ? "" : "Logout"} placement="right">
             <Flex
               align="center"
               mr={4}
@@ -339,7 +338,7 @@ const SidebarContent = ({
               color="red.500"
               cursor="pointer"
               _hover={{
-                bg: 'red.200',
+                bg: "red.200",
               }}
               transition="background 0.2s ease"
             >
@@ -359,53 +358,53 @@ const SidebarContent = ({
 
 const navigationItems = [
   {
-    label: 'Dashboard',
-    eventKey: 'dashboard',
+    label: "Dashboard",
+    eventKey: "dashboard",
     icon: FiHome,
-    roles: ['admin', 'operation_manager', 'finance_manager', 'user'],
-    path: '/dashboard',
+    roles: ["admin", "operation_manager", "finance_manager", "user"],
+    path: "/dashboard",
   },
   {
-    label: 'Profile',
-    eventKey: 'profile',
+    label: "Profile",
+    eventKey: "profile",
     icon: FiUser,
-    roles: ['admin', 'operation_manager', 'finance_manager', 'user'],
-    path: '/profile',
+    roles: ["admin", "operation_manager", "finance_manager", "user"],
+    path: "/profile",
   },
   {
-    label: 'Campaigns',
-    eventKey: 'campaign',
+    label: "Campaigns",
+    eventKey: "campaign",
     icon: FiSpeaker,
-    roles: ['admin'],
-    path: '/campaign',
+    roles: ["admin"],
+    path: "/campaign",
   },
   {
-    label: 'Users',
-    eventKey: 'users',
+    label: "Users",
+    eventKey: "users",
     icon: FiUsers,
-    roles: ['admin'],
-    path: '/users',
+    roles: ["admin"],
+    path: "/users",
   },
   {
-    label: 'Videos',
-    eventKey: 'video',
+    label: "Videos",
+    eventKey: "video",
     icon: FiVideo,
-    roles: ['admin', 'finance_manager', 'operation_manager'],
-    path: '/video',
+    roles: ["admin", "finance_manager", "operation_manager"],
+    path: "/video",
   },
   {
-    label: 'Payments',
-    eventKey: 'payment',
+    label: "Payments",
+    eventKey: "payment",
     icon: FiDollarSign,
-    roles: ['admin', 'finance_manager'],
-    path: '/payment',
+    roles: ["admin", "finance_manager"],
+    path: "/payment",
   },
   {
-    label: 'Creators',
-    eventKey: 'creators',
+    label: "Creators",
+    eventKey: "creators",
     icon: FiTrendingUp,
-    roles: ['admin', 'finance_manager', 'operation_manager', 'user'],
-    path: '/creators',
+    roles: ["admin", "finance_manager", "operation_manager", "user"],
+    path: "/creators",
   },
 ];
 
@@ -427,12 +426,12 @@ const Header = ({
 
   const handleLogout = () => {
     logout();
-    router.push('/auth/Login');
+    router.push("/auth/Login");
   };
 
   return (
     <Flex
-      ml={{ base: 0, md: expanded ? '240px' : '60px' }}
+      ml={{ base: 0, md: expanded ? "240px" : "60px" }}
       transition="margin-left 0.3s ease"
       px={{ base: 4, md: 6 }}
       height="20"
@@ -443,7 +442,10 @@ const Header = ({
       justifyContent="space-between"
       // position="fixed"
       top="0"
-      width={{ base: '100%', md: `calc(100% - ${expanded ? '240px' : '60px'})` }}
+      width={{
+        base: "100%",
+        md: `calc(100% - ${expanded ? "240px" : "60px"})`,
+      }}
       // zIndex="1000"
       {...rest}
     >
@@ -460,7 +462,7 @@ const Header = ({
         )}
         {/* Brand Name */}
         <Heading
-          fontSize={{ base: 'lg', md: 'xl' }}
+          fontSize={{ base: "lg", md: "xl" }}
           bgGradient="linear(to-r, teal.400, green.400)"
           bgClip="text"
           fontWeight="extrabold"
@@ -472,22 +474,17 @@ const Header = ({
         {/* Color Mode Toggle Button */}
         <IconButton
           aria-label="Toggle color mode"
-          icon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
+          icon={colorMode === "light" ? <FiMoon /> : <FiSun />}
           onClick={toggleColorMode}
           variant="ghost"
         />
         {!isMobile && (
-          <VStack
-            display="flex"
-            alignItems="flex-start"
-            spacing="1px"
-            ml="2"
-          >
+          <VStack display="flex" alignItems="flex-start" spacing="1px" ml="2">
             <Text fontSize="sm" color={textColor}>
-              {user?.name || 'User'}
+              {user?.name || "User"}
             </Text>
             <Text fontSize="xs" color="gray.500">
-              {user?.role || ''}
+              {user?.role || ""}
             </Text>
           </VStack>
         )}

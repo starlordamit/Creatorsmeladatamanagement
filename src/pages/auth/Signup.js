@@ -1,8 +1,8 @@
 // src/pages/auth/Signup.js
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import {
   Flex,
   Box,
@@ -22,90 +22,90 @@ import {
   useColorMode,
   useColorModeValue,
   InputRightElement,
-} from '@chakra-ui/react'
-import { AtSignIcon, LockIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons' // Added icons
-import { signup } from '../../services/api' // Import the signup API function
+} from "@chakra-ui/react";
+import { AtSignIcon, LockIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons"; // Added icons
+import { signup } from "../../services/api"; // Import the signup API function
 
 export default function Signup() {
   // **State Management**
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false) // For toggling password visibility
-  const [error, setError] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
-  const router = useRouter()
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // For toggling password visibility
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const router = useRouter();
 
   // **Color Mode Hooks**
-  const { colorMode, toggleColorMode } = useColorMode()
+  const { colorMode, toggleColorMode } = useColorMode();
 
   // **Predefine all useColorModeValue calls at the top level**
   const bgGradient = useColorModeValue(
-    'linear(to-r, gray.50, gray.100)',
-    'linear(to-r, gray.800, gray.900)'
-  )
-  const bgBox = useColorModeValue('white', 'gray.700')
-  const borderColorBox = useColorModeValue('gray.200', 'gray.600')
-  const bgInput = useColorModeValue('gray.100', 'gray.600')
-  const bgInputFocus = useColorModeValue('white', 'gray.500')
-  const iconColor = useColorModeValue('gray.400', 'gray.400')
-  const alertBgError = useColorModeValue('red.100', 'red.600')
-  const alertColorError = useColorModeValue('red.700', 'white')
-  const alertBgSuccess = useColorModeValue('green.100', 'green.600')
-  const alertColorSuccess = useColorModeValue('green.700', 'white')
-  const btnBg = useColorModeValue('blue.400', 'blue.600')
-  const btnHoverBg = useColorModeValue('blue.500', 'blue.700')
-  const btnActiveBg = useColorModeValue('blue.600', 'blue.800')
-  const textColorGray = useColorModeValue('gray.500', 'gray.300')
-  const textColorBlue = useColorModeValue('blue.400', 'blue.300')
+    "linear(to-r, gray.50, gray.100)",
+    "linear(to-r, gray.800, gray.900)"
+  );
+  const bgBox = useColorModeValue("white", "gray.700");
+  const borderColorBox = useColorModeValue("gray.200", "gray.600");
+  const bgInput = useColorModeValue("gray.100", "gray.600");
+  const bgInputFocus = useColorModeValue("white", "gray.500");
+  const iconColor = useColorModeValue("gray.400", "gray.400");
+  const alertBgError = useColorModeValue("red.100", "red.600");
+  const alertColorError = useColorModeValue("red.700", "white");
+  const alertBgSuccess = useColorModeValue("green.100", "green.600");
+  const alertColorSuccess = useColorModeValue("green.700", "white");
+  const btnBg = useColorModeValue("blue.400", "blue.600");
+  const btnHoverBg = useColorModeValue("blue.500", "blue.700");
+  const btnActiveBg = useColorModeValue("blue.600", "blue.800");
+  const textColorGray = useColorModeValue("gray.500", "gray.300");
+  const textColorBlue = useColorModeValue("blue.400", "blue.300");
 
   // **Client-side rendering state**
-  const [isMounted, setIsMounted] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
+  const [isMounted, setIsMounted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   // **Effect to Handle Mounting and Animation**
   useEffect(() => {
-    setIsMounted(true)
+    setIsMounted(true);
     // Trigger the animation after mount
-    setIsOpen(true)
-  }, [])
+    setIsOpen(true);
+  }, []);
 
   // **Handle Signup Submission**
   const handleSignup = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       // Call signup API to create the user
-      await signup(name, email, password)
-      setSuccessMessage('Signup successful! Redirecting to login...')
+      await signup(name, email, password);
+      setSuccessMessage("Signup successful! Redirecting to login...");
       setTimeout(() => {
-        router.push('/auth/Login') // Redirect to login after successful signup
-      }, 2000)
+        router.push("/auth/Login"); // Redirect to login after successful signup
+      }, 2000);
     } catch (err) {
-      setError('Signup failed. Please try again.')
+      setError("Signup failed. Please try again.");
     }
-  }
+  };
 
   // **Toggle Password Visibility**
-  const handleShowClick = () => setShowPassword(!showPassword)
+  const handleShowClick = () => setShowPassword(!showPassword);
 
   // **Prevent Rendering Until Mounted to Avoid Hydration Mismatch**
   if (!isMounted) {
-    return null // Or a loading spinner if preferred
+    return null; // Or a loading spinner if preferred
   }
 
   return (
     <Flex
-      minH={'100vh'}
-      align={'center'}
-      justify={'center'}
+      minH={"100vh"}
+      align={"center"}
+      justify={"center"}
       bgGradient={bgGradient}
-      px={4}
+      // px={4}
     >
       <ScaleFade initialScale={0.9} in={isOpen}>
-        <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6} width="100%">
-          <Stack align={'center'}>
+        <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6} width="100%">
+          <Stack align={"center"}>
             <Heading
-              fontSize={{ base: '3xl', sm: '4xl', md: '5xl' }}
+              fontSize={{ base: "3xl", sm: "4xl", md: "5xl" }}
               bgGradient="linear(to-r, blue.400, purple.400)"
               bgClip="text"
               fontWeight="extrabold"
@@ -122,9 +122,9 @@ export default function Signup() {
             </Text> */}
           </Stack>
           <Box
-            rounded={'2xl'}
+            rounded={"2xl"}
             bg={bgBox}
-            boxShadow={'2xl'}
+            boxShadow={"2xl"}
             p={8}
             border="1px"
             borderColor={borderColorBox}
@@ -166,7 +166,7 @@ export default function Signup() {
                       border={0}
                       _focus={{
                         bg: bgInputFocus,
-                        boxShadow: 'outline',
+                        boxShadow: "outline",
                       }}
                     />
                   </InputGroup>
@@ -187,7 +187,7 @@ export default function Signup() {
                       border={0}
                       _focus={{
                         bg: bgInputFocus,
-                        boxShadow: 'outline',
+                        boxShadow: "outline",
                       }}
                     />
                   </InputGroup>
@@ -199,7 +199,7 @@ export default function Signup() {
                       <LockIcon color={iconColor} />
                     </InputLeftElement>
                     <Input
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       placeholder="Your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -208,7 +208,7 @@ export default function Signup() {
                       border={0}
                       _focus={{
                         bg: bgInputFocus,
-                        boxShadow: 'outline',
+                        boxShadow: "outline",
                       }}
                     />
                     <InputRightElement>
@@ -225,7 +225,7 @@ export default function Signup() {
                   <Button
                     type="submit"
                     bg={btnBg}
-                    color={'white'}
+                    color={"white"}
                     // size={useBreakpointValue({ base: 'md', md: 'lg' })}
                     fontWeight="bold"
                     _hover={{
@@ -242,12 +242,12 @@ export default function Signup() {
                 </Stack>
               </form>
               <Text align="center" mt={4} color={textColorGray}>
-                Already have an account?{' '}
+                Already have an account?{" "}
                 <Text
                   as="span"
                   color={textColorBlue}
                   cursor="pointer"
-                  onClick={() => router.push('/auth/Login')}
+                  onClick={() => router.push("/auth/Login")}
                 >
                   Sign In
                 </Text>
@@ -257,5 +257,5 @@ export default function Signup() {
         </Stack>
       </ScaleFade>
     </Flex>
-  )
+  );
 }

@@ -184,33 +184,39 @@ export default function VideoManagementPage() {
     { label: "Creator Price", key: "creator_price" },
   ];
 
-  const loadVideos = useCallback(async (token) => {
-    try {
-      const data = await fetchAllVideos(token);
-      setVideos(data);
-    } catch (err) {
-      toast({
-        title: "Error fetching videos",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  }, [toast]);
+  const loadVideos = useCallback(
+    async (token) => {
+      try {
+        const data = await fetchAllVideos(token);
+        setVideos(data);
+      } catch (err) {
+        toast({
+          title: "Error fetching videos",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    },
+    [toast]
+  );
 
-  const loadCampaigns = useCallback(async (token) => {
-    try {
-      const data = await fetchCampaigns(token);
-      setCampaigns(data);
-    } catch (err) {
-      toast({
-        title: "Error fetching campaigns",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  }, [toast]);
+  const loadCampaigns = useCallback(
+    async (token) => {
+      try {
+        const data = await fetchCampaigns(token);
+        setCampaigns(data);
+      } catch (err) {
+        toast({
+          title: "Error fetching campaigns",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    },
+    [toast]
+  );
 
   useEffect(() => {
     if (authToken) {
@@ -679,7 +685,7 @@ export default function VideoManagementPage() {
           overflow="auto"
           bg={cardBg}
           shadow="sm"
-          maxHeight={{ base: "400px", md: "600px" }}
+          maxHeight="74vh"
           border={`1px solid ${borderColor}`}
         >
           <Table
@@ -766,14 +772,13 @@ export default function VideoManagementPage() {
                                 video[col.key] === "paid"
                                   ? "green"
                                   : video[col.key] === "progress" ||
-                                    video[col.key] === "pending"
-                                  ? "yellow"
-                                  : "red"
+                                      video[col.key] === "pending"
+                                    ? "yellow"
+                                    : "red"
                               }
                             >
-                              {video[col.key]
-                                .charAt(0)
-                                .toUpperCase() + video[col.key].slice(1)}
+                              {video[col.key].charAt(0).toUpperCase() +
+                                video[col.key].slice(1)}
                             </Badge>
                           ) : col.key === "live_date" ? (
                             new Date(video[col.key]).toLocaleDateString()
@@ -881,11 +886,7 @@ export default function VideoManagementPage() {
                   bg={useColorModeValue("gray.100", "gray.500")}
                 />
               </FormControl>
-              <FormControl
-                id="video_status"
-                isRequired
-                hidden={!isEdit}
-              >
+              <FormControl id="video_status" isRequired hidden={!isEdit}>
                 <FormLabel>Select Video Status</FormLabel>
                 <Select
                   placeholder="Select Video Status"

@@ -1,20 +1,20 @@
 // components/CustomDateRangePicker.jsx
 
-import React from 'react';
-import { Box, useColorMode, useColorModeValue, Button } from '@chakra-ui/react';
-import { DateRange } from 'react-date-range';
-import { addDays } from 'date-fns';
-import 'react-date-range/dist/styles.css'; // Main style file
-import 'react-date-range/dist/theme/default.css'; // Theme CSS file
-import { FiCalendar } from 'react-icons/fi';
+import React from "react";
+import { Box, useColorMode, useColorModeValue, Button } from "@chakra-ui/react";
+import { DateRange } from "react-date-range";
+import { addDays } from "date-fns";
+import "react-date-range/dist/styles.css"; // Main style file
+import "react-date-range/dist/theme/default.css"; // Theme CSS file
+import { FiCalendar } from "react-icons/fi";
 
 const CustomDateRangePicker = ({ dateRange, setDateRange }) => {
   const { colorMode } = useColorMode();
 
   // Define theme colors based on Chakra UI's color mode
-  const bg = useColorModeValue('white', 'gray.700');
-  const text = useColorModeValue('black', 'white');
-  const selectionColor = useColorModeValue('#3182CE', '#63B3ED'); // Chakra's blue shades
+  const bg = useColorModeValue("white", "gray.700");
+  const text = useColorModeValue("black", "white");
+  const selectionColor = useColorModeValue("#3182CE", "#63B3ED"); // Chakra's blue shades
 
   // Custom styles for react-date-range
   const customStyles = {
@@ -27,14 +27,14 @@ const CustomDateRangePicker = ({ dateRange, setDateRange }) => {
     },
     selected: {
       background: selectionColor,
-      color: 'white',
+      color: "white",
     },
     today: {
       border: `1px solid ${selectionColor}`,
     },
     input: {
-      border: 'none',
-      background: 'transparent',
+      border: "none",
+      background: "transparent",
       color: text,
     },
     monthAndYear: {
@@ -52,13 +52,15 @@ const CustomDateRangePicker = ({ dateRange, setDateRange }) => {
     <Box>
       <DateRange
         editableDateInputs={true}
-        onChange={item => setDateRange([item.selection.startDate, item.selection.endDate])}
+        onChange={(item) =>
+          setDateRange([item.selection.startDate, item.selection.endDate])
+        }
         moveRangeOnFirstSelection={false}
         ranges={[
           {
             startDate: dateRange[0],
             endDate: dateRange[1],
-            key: 'selection',
+            key: "selection",
           },
         ]}
         maxDate={addDays(new Date(), 365)}

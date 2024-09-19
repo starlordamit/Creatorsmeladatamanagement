@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -17,17 +17,17 @@ import {
   ButtonGroup,
   Button,
   useMediaQuery,
-} from '@chakra-ui/react';
-import SidebarWithHeader from '@/components/Navbar'; // Navbar component
-import { fetchAllVideos, updatePaymentStatus } from '../services/api'; // API functions
-import { useAuth } from '../context/AuthContext'; // Auth context
+} from "@chakra-ui/react";
+import SidebarWithHeader from "@/components/Navbar"; // Navbar component
+import { fetchAllVideos, updatePaymentStatus } from "../services/api"; // API functions
+import { useAuth } from "../context/AuthContext"; // Auth context
 
 export default function PaymentsPage() {
   const { authToken } = useAuth(); // Using the useAuth hook to get token and user info
-  const [isMobile] = useMediaQuery('(max-width: 768px)');
+  const [isMobile] = useMediaQuery("(max-width: 768px)");
   const [videos, setVideos] = useState([]);
-  const [paymentStatusFilter, setPaymentStatusFilter] = useState('');
-  const [uploaderFilter, setUploaderFilter] = useState(''); // Filter by uploader
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("");
+  const [uploaderFilter, setUploaderFilter] = useState(""); // Filter by uploader
   const [paymentStatusMap, setPaymentStatusMap] = useState({}); // State to track individual statuses
   const [selectedRows, setSelectedRows] = useState([]); // Selected rows for potential batch operations
   const toast = useToast();
@@ -35,15 +35,14 @@ export default function PaymentsPage() {
   const modalSize = isMobile ? "full" : "lg";
   const bgColor = useColorModeValue("white", "gray.800");
 
-
   // Theme-aware colors
-  const tableHeaderBg = useColorModeValue('gray.100', 'gray.900');
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const textColor = useColorModeValue('gray.800', 'white');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const selectBg = useColorModeValue('gray.50', 'gray.700');
-  const selectHoverBg = useColorModeValue('gray.100', 'gray.600');
-  const selectBorderColor = useColorModeValue('gray.300', 'gray.600');
+  const tableHeaderBg = useColorModeValue("gray.100", "gray.900");
+  const cardBg = useColorModeValue("white", "gray.800");
+  const textColor = useColorModeValue("gray.800", "white");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const selectBg = useColorModeValue("gray.50", "gray.700");
+  const selectHoverBg = useColorModeValue("gray.100", "gray.600");
+  const selectBorderColor = useColorModeValue("gray.300", "gray.600");
 
   // Fetch videos on component mount
   useEffect(() => {
@@ -58,8 +57,8 @@ export default function PaymentsPage() {
       setVideos(data);
     } catch (err) {
       toast({
-        title: 'Error fetching videos',
-        status: 'error',
+        title: "Error fetching videos",
+        status: "error",
         duration: 3000,
       });
     }
@@ -70,15 +69,15 @@ export default function PaymentsPage() {
     try {
       await updatePaymentStatus(videoId, status, authToken); // Pass token to API
       toast({
-        title: 'Payment status updated successfully!',
-        status: 'success',
+        title: "Payment status updated successfully!",
+        status: "success",
         duration: 3000,
       });
       loadVideos(authToken); // Reload videos after update
     } catch (err) {
       toast({
-        title: 'Error updating payment status',
-        status: 'error',
+        title: "Error updating payment status",
+        status: "error",
         duration: 3000,
       });
     }
@@ -127,7 +126,7 @@ export default function PaymentsPage() {
         p={{ base: 2, md: 4 }} // Responsive padding for mobile and desktop
       >
         <Flex
-          direction={{ base: 'column', md: 'row' }} // Stack filters vertically on mobile, horizontally on desktop
+          direction={{ base: "column", md: "row" }} // Stack filters vertically on mobile, horizontally on desktop
           alignItems="center"
           justifyContent="space-between"
           wrap="wrap"
@@ -136,40 +135,40 @@ export default function PaymentsPage() {
         >
           {/* Payment Status Filter Buttons */}
           <ButtonGroup
-            size={isMobile ? 'sm' : 'sm'}
+            size={isMobile ? "sm" : "sm"}
             variant="outline"
             wrap="wrap"
             mb={1} // Add margin bottom for better mobile spacing
           >
             <Button
               colorScheme="green"
-              variant={paymentStatusFilter === 'done' ? 'solid' : 'outline'}
-              onClick={() => setPaymentStatusFilter('done')}
-              width={{ base: '100%', md: 'auto' }} // Full width on mobile, auto on desktop
+              variant={paymentStatusFilter === "done" ? "solid" : "outline"}
+              onClick={() => setPaymentStatusFilter("done")}
+              width={{ base: "100%", md: "auto" }} // Full width on mobile, auto on desktop
             >
               Paid
             </Button>
             <Button
               colorScheme="yellow"
-              variant={paymentStatusFilter === 'request' ? 'solid' : 'outline'}
-              onClick={() => setPaymentStatusFilter('request')}
-              width={{ base: '100%', md: 'auto' }} // Full width on mobile, auto on desktop
+              variant={paymentStatusFilter === "request" ? "solid" : "outline"}
+              onClick={() => setPaymentStatusFilter("request")}
+              width={{ base: "100%", md: "auto" }} // Full width on mobile, auto on desktop
             >
               Unpaid
             </Button>
             <Button
               colorScheme="red"
-              variant={paymentStatusFilter === 'reject' ? 'solid' : 'outline'}
-              onClick={() => setPaymentStatusFilter('reject')}
-              width={{ base: '100%', md: 'auto' }} // Full width on mobile, auto on desktop
+              variant={paymentStatusFilter === "reject" ? "solid" : "outline"}
+              onClick={() => setPaymentStatusFilter("reject")}
+              width={{ base: "100%", md: "auto" }} // Full width on mobile, auto on desktop
             >
               Rejected
             </Button>
             <Button
               colorScheme="teal"
-              variant={paymentStatusFilter === '' ? 'solid' : 'outline'}
-              onClick={() => setPaymentStatusFilter('')}
-              width={{ base: '100%', md: 'auto' }} // Full width on mobile, auto on desktop
+              variant={paymentStatusFilter === "" ? "solid" : "outline"}
+              onClick={() => setPaymentStatusFilter("")}
+              width={{ base: "100%", md: "auto" }} // Full width on mobile, auto on desktop
             >
               All
             </Button>
@@ -180,8 +179,8 @@ export default function PaymentsPage() {
             placeholder="Search by Uploader"
             value={uploaderFilter}
             onChange={(e) => setUploaderFilter(e.target.value)}
-            size={isMobile ? 'sm' : 'sm'}
-            width={{ base: '100%', md: '200px' }} // Full width on mobile, fixed width on desktop
+            size={isMobile ? "sm" : "sm"}
+            width={{ base: "100%", md: "200px" }} // Full width on mobile, fixed width on desktop
             mb={{ base: 1, md: 0 }} // Add margin bottom for better mobile spacing
           />
         </Flex>
@@ -189,7 +188,7 @@ export default function PaymentsPage() {
 
       {/* Videos Table */}
       <Box overflowX="auto">
-      <Box
+        <Box
           borderWidth="1px"
           borderRadius="md"
           overflow="auto"
@@ -198,7 +197,11 @@ export default function PaymentsPage() {
           maxHeight={{ base: "400px", md: "600px" }}
           border={`1px solid ${borderColor}`}
         >
-          <Table  variant="simple" size="sm" colorScheme={useColorModeValue("blackAlpha", "whiteAlpha")}>
+          <Table
+            variant="simple"
+            size="sm"
+            colorScheme={useColorModeValue("blackAlpha", "whiteAlpha")}
+          >
             <Thead bg={tableHeaderBg}>
               <Tr>
                 <Th>
@@ -228,7 +231,7 @@ export default function PaymentsPage() {
                 <Th>Update Payment Status</Th>
               </Tr>
             </Thead>
-            <Tbody bg={useColorModeValue('white', 'gray.700')}>
+            <Tbody bg={useColorModeValue("white", "gray.700")}>
               {filteredVideos.map((video) => (
                 <Tr key={video.video_id}>
                   <Td>
@@ -243,7 +246,7 @@ export default function PaymentsPage() {
                       whiteSpace="nowrap"
                       overflow="hidden"
                       textOverflow="ellipsis"
-                      maxWidth={{ base: '150px', md: 'none' }}
+                      maxWidth={{ base: "150px", md: "none" }}
                     >
                       {video.profile_url}
                     </Box>
@@ -253,7 +256,7 @@ export default function PaymentsPage() {
                       whiteSpace="nowrap"
                       overflow="hidden"
                       textOverflow="ellipsis"
-                      maxWidth={{ base: '150px', md: 'none' }}
+                      maxWidth={{ base: "150px", md: "none" }}
                     >
                       {video.video_url}
                     </Box>
@@ -264,11 +267,11 @@ export default function PaymentsPage() {
                   <Td>
                     <Badge
                       colorScheme={
-                        video.video_status === 'live'
-                          ? 'green'
-                          : video.video_status === 'progress'
-                          ? 'yellow'
-                          : 'red'
+                        video.video_status === "live"
+                          ? "green"
+                          : video.video_status === "progress"
+                            ? "yellow"
+                            : "red"
                       }
                     >
                       {video.video_status}
@@ -278,11 +281,11 @@ export default function PaymentsPage() {
                   <Td>
                     <Badge
                       colorScheme={
-                        video.payment_status === 'done'
-                          ? 'green'
-                          : video.payment_status === 'request'
-                          ? 'yellow'
-                          : 'red'
+                        video.payment_status === "done"
+                          ? "green"
+                          : video.payment_status === "request"
+                            ? "yellow"
+                            : "red"
                       }
                     >
                       {video.payment_status}

@@ -1,6 +1,6 @@
 // src/pages/dashboard.js
 
-'use client'
+"use client";
 
 import {
   Box,
@@ -25,7 +25,7 @@ import {
   useDisclosure,
   Divider,
   Tooltip,
-} from '@chakra-ui/react'
+} from "@chakra-ui/react";
 import {
   SunIcon,
   MoonIcon,
@@ -34,9 +34,9 @@ import {
   CloseIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-} from '@chakra-ui/icons'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+} from "@chakra-ui/icons";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   LineChart,
   Line,
@@ -45,81 +45,81 @@ import {
   CartesianGrid,
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
-} from 'recharts'
-import { FiLogOut } from 'react-icons/fi'
-import { FaHome, FaChartBar, FaCog } from 'react-icons/fa'
-import SidebarWithHeader from '@/components/Navbar'
+} from "recharts";
+import { FiLogOut } from "react-icons/fi";
+import { FaHome, FaChartBar, FaCog } from "react-icons/fa";
+import SidebarWithHeader from "@/components/Navbar";
 
 export default function Dashboard() {
   // **1. Hook Calls at the Top Level**
 
   // Chakra UI Hooks
-  const { colorMode, toggleColorMode } = useColorMode()
-  const bg = useColorModeValue('gray.100', 'gray.800')
-  const cardBg = useColorModeValue('white', 'gray.700')
-  const textColor = useColorModeValue('gray.700', 'white')
-  const borderColor = useColorModeValue('gray.200', 'gray.600')
+  const { colorMode, toggleColorMode } = useColorMode();
+  const bg = useColorModeValue("gray.100", "gray.800");
+  const cardBg = useColorModeValue("white", "gray.700");
+  const textColor = useColorModeValue("gray.700", "white");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   // Drawer Hooks
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   // State Management
-  const [statusData, setStatusData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [statusData, setStatusData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // **2. Predefine All `useColorModeValue` Calls at the Top Level**
 
   // Define stroke color for CartesianGrid outside JSX
-  const gridStroke = useColorModeValue('#e2e8f0', '#4a5568')
+  const gridStroke = useColorModeValue("#e2e8f0", "#4a5568");
 
   // **3. Function to Retrieve Token**
 
   const getToken = () => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('authToken') || null
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("authToken") || null;
     }
-    return null
-  }
+    return null;
+  };
 
   // **4. Function to Handle Logout**
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken')
-    window.location.href = '/auth/Login'
-  }
+    localStorage.removeItem("authToken");
+    window.location.href = "/auth/Login";
+  };
 
   // **5. Fetch Data with useEffect**
 
   useEffect(() => {
-    const token = getToken()
+    const token = getToken();
     if (!token) {
       // Redirect to login if token is not available
-      window.location.href = '/auth/Login'
+      window.location.href = "/auth/Login";
     } else {
       // Fetch data from the API
       axios
-        .get('https://winner51.online/api/campaigns/status', {
+        .get("https://winner51.online/api/campaigns/status", {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         })
         .then((response) => {
-          setStatusData(response.data)
-          setLoading(false)
+          setStatusData(response.data);
+          setLoading(false);
         })
         .catch((err) => {
-          console.error(err)
-          setError(err.response?.data?.message || 'Error fetching data')
-          setLoading(false)
+          console.error(err);
+          setError(err.response?.data?.message || "Error fetching data");
+          setLoading(false);
           // If unauthorized, redirect to login
           if (err.response && err.response.status === 401) {
-            handleLogout()
+            handleLogout();
           }
-        })
+        });
     }
-  }, [])
+  }, []);
 
   // **6. Handle Loading State**
 
@@ -128,7 +128,7 @@ export default function Dashboard() {
       <Center h="100vh" bg={bg}>
         <Spinner size="xl" color="blue.500" />
       </Center>
-    )
+    );
   }
 
   // **7. Handle Error State**
@@ -147,23 +147,23 @@ export default function Dashboard() {
           />
         </VStack>
       </Center>
-    )
+    );
   }
 
   // **8. Prepare Data for Charts**
 
-  const last30Videos = statusData?.date_wise_video_report?.slice(-30) || []
+  const last30Videos = statusData?.date_wise_video_report?.slice(-30) || [];
 
   const dateWiseData = last30Videos.map((item) => ({
     date: new Date(item.date).toLocaleDateString(),
     video_count: item.video_count,
-  }))
+  }));
 
   // console.log('dateWiseData:', dateWiseData) // For debugging
 
   return (
     <>
-      <Flex  minH="100vh">
+      <Flex minH="100vh">
         {/* Sidebar for Desktop */}
         {/* <Sidebar isOpen={isOpen} onClose={onClose} /> */}
 
@@ -177,10 +177,10 @@ export default function Dashboard() {
             {/* Metric Cards */}
             <Grid
               templateColumns={{
-                base: '1fr',
-                sm: '1fr 1fr',
-                md: 'repeat(3, 1fr)',
-                lg: 'repeat(4, 1fr)',
+                base: "1fr",
+                sm: "1fr 1fr",
+                md: "repeat(3, 1fr)",
+                lg: "repeat(4, 1fr)",
               }}
               gap={6}
               mb={6}
@@ -255,7 +255,7 @@ export default function Dashboard() {
         </Flex>
       </Flex>
     </>
-  )
+  );
 }
 
 // Sidebar Component (Commented Out)
@@ -361,9 +361,9 @@ const MetricCard = ({ title, value, subtitle, icon, color }) => {
   // **Hook Calls at the Top Level**
 
   // Chakra UI Hooks
-  const cardBg = useColorModeValue('white', 'gray.700')
-  const textColor = useColorModeValue('gray.700', 'white')
-  const borderColor = useColorModeValue('gray.200', 'gray.600')
+  const cardBg = useColorModeValue("white", "gray.700");
+  const textColor = useColorModeValue("gray.700", "white");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   return (
     <Box
@@ -376,7 +376,7 @@ const MetricCard = ({ title, value, subtitle, icon, color }) => {
       display="flex"
       flexDirection="column"
       justifyContent="space-between"
-      _hover={{ transform: 'scale(1.02)', boxShadow: 'lg' }}
+      _hover={{ transform: "scale(1.02)", boxShadow: "lg" }}
       transition="all 0.2s ease"
     >
       <VStack align="start" spacing={1}>
@@ -396,5 +396,5 @@ const MetricCard = ({ title, value, subtitle, icon, color }) => {
         )}
       </VStack>
     </Box>
-  )
-}
+  );
+};

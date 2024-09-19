@@ -1,23 +1,36 @@
-'use client'
+"use client";
 
-import { Box, Button, Heading, Stack, Text, useColorModeValue, Flex, useBreakpointValue, Link } from '@chakra-ui/react'
-import { motion } from 'framer-motion'
-import { useRouter } from 'next/router'
+import {
+  Box,
+  Button,
+  Heading,
+  Stack,
+  Text,
+  useColorModeValue,
+  Flex,
+  useBreakpointValue,
+  Link,
+} from "@chakra-ui/react";
+import { motion } from "framer-motion";
+import { useRouter } from "next/router";
 
 export default function Home() {
-  const router = useRouter()
+  const router = useRouter();
 
   // Responsive settings for heading and subtext
-  const headingSize = useBreakpointValue({ base: '4xl', md: '7xl' }) // Larger on desktop, medium on mobile
-  const subTextSize = useBreakpointValue({ base: 'md', md: 'xl' })
+  const headingSize = useBreakpointValue({ base: "4xl", md: "7xl" }); // Larger on desktop, medium on mobile
+  const subTextSize = useBreakpointValue({ base: "md", md: "xl" });
 
   return (
     <Flex
-      minH={'100vh'}
-      align={'center'}
-      justify={'center'}
+      minH={"100vh"}
+      align={"center"}
+      justify={"center"}
       direction="column"
-      bgGradient={useColorModeValue('linear(to-r, gray.50, gray.100)', 'linear(to-r, gray.800, gray.900)')}
+      bgGradient={useColorModeValue(
+        "linear(to-r, gray.50, gray.100)",
+        "linear(to-r, gray.800, gray.900)"
+      )}
       px={4}
       textAlign="center"
     >
@@ -37,7 +50,7 @@ export default function Home() {
       <Text
         fontSize={subTextSize}
         mb={6}
-        color={useColorModeValue('gray.600', 'gray.300')}
+        color={useColorModeValue("gray.600", "gray.300")}
         as={motion.p}
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -51,13 +64,13 @@ export default function Home() {
           bgGradient="linear(to-r, teal.400, blue.400)"
           color="white"
           _hover={{
-            bgGradient: 'linear(to-r, teal.500, blue.500)',
-            boxShadow: 'xl',
+            bgGradient: "linear(to-r, teal.500, blue.500)",
+            boxShadow: "xl",
           }}
           as={motion.button}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => router.push('/auth/Signup')}
+          onClick={() => router.push("/auth/Signup")}
         >
           Get Started
         </Button>
@@ -66,30 +79,29 @@ export default function Home() {
           bgGradient="linear(to-r, teal.400, blue.400)"
           color="white"
           _hover={{
-            bgGradient: 'linear(to-r, teal.500, blue.500)',
-            boxShadow: 'xl',
+            bgGradient: "linear(to-r, teal.500, blue.500)",
+            boxShadow: "xl",
           }}
           as={motion.button}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => router.push('/auth/Login')}
+          onClick={() => router.push("/auth/Login")}
         >
           Login
         </Button>
-       
       </Stack>
       <Link
-      mt={4}
-          href="https://creatorsmela.com"
-          isExternal
-          fontSize={subTextSize}
-          color={useColorModeValue('blue.500', 'blue.300')}
-          _hover={{
-            textDecoration: 'underline',
-          }}
-        >
-          Visit creatorsmela.com
-        </Link>
+        mt={4}
+        href="https://creatorsmela.com"
+        isExternal
+        fontSize={subTextSize}
+        color={useColorModeValue("blue.500", "blue.300")}
+        _hover={{
+          textDecoration: "underline",
+        }}
+      >
+        Visit creatorsmela.com
+      </Link>
     </Flex>
-  )
+  );
 }

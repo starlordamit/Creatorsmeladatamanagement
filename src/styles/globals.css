@@ -2,32 +2,31 @@
 
 /* Body styles */
 body {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  /* Custom link styling */
-  a {
-    text-decoration: none;
-    color: inherit;
-  }
-  
-  /* Utility classes */
-  .text-center {
-    text-align: center;
-  }
-  
-  .mt-4 {
-    margin-top: 1rem;
-  }
-  
-  .mb-4 {
-    margin-bottom: 1rem;
-  }
-  
-  .p-4 {
-    padding: 1rem;
-  }
-  
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+/* Custom link styling */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.p-4 {
+  padding: 1rem;
+}
