@@ -125,7 +125,7 @@ export default function VideoManagementPage() {
     video_status: "",
     live_date: "",
     brand_price: "",
-    commission: "",
+    // commission: "",
     creator_price: "",
     payment_status: "",
   });
@@ -152,7 +152,7 @@ export default function VideoManagementPage() {
     live_date: true,
     payment_status: true,
     brand_price: true,
-    commission: true,
+    // commission: true,
     creator_price: true,
   });
   const [visibleColumns, setVisibleColumns] = useState({
@@ -165,7 +165,7 @@ export default function VideoManagementPage() {
     live_date: true,
     payment_status: true,
     brand_price: true,
-    commission: true,
+    // commission: true,
     creator_price: true,
   });
   const [downloadFormat, setDownloadFormat] = useState("excel");
@@ -180,7 +180,7 @@ export default function VideoManagementPage() {
     { label: "Live Date", key: "live_date" },
     { label: "Payment Status", key: "payment_status" },
     { label: "Promotion Price", key: "brand_price" },
-    { label: "Commission", key: "commission" },
+    // { label: "Commission", key: "commission" },
     { label: "Creator Price", key: "creator_price" },
   ];
 
