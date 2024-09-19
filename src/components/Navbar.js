@@ -9,8 +9,8 @@ import {
   HStack,
   VStack,
   Text,
-  useColorModeValue,
   Drawer,
+  NavigationItems,
   DrawerContent,
   useDisclosure,
   useMediaQuery,
@@ -22,7 +22,7 @@ import {
   Icon,
   Heading,
   Tooltip,
-  Divider,
+  useColorModeValue
 } from '@chakra-ui/react';
 import {
   FiMenu,
@@ -42,21 +42,34 @@ import {
 } from 'react-icons/fi';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
-import { fetchUserProfile } from '../services/api';
 
 const SidebarWithHeader = ({ children }) => {
   // **Hook Calls at the Top Level**
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const bgSidebar = useColorModeValue('white', 'gray.800'); // Sidebar background
-  const bgMain = useColorModeValue('gray.50', 'gray.900'); // Main content background
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { user, setUser, logout } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
   const [isMobile] = useMediaQuery('(max-width: 768px)');
 
-  // Initialize states
   const [expanded, setExpanded] = useState(true); // Default to expanded
   const [mounted, setMounted] = useState(false); // To track if component is mounted
+
+  // Predefine all useColorModeValue calls outside conditionals
+  const bgSidebar = useColorModeValue('white', 'gray.800'); // Sidebar background
+  const bgMain = useColorModeValue('gray.50', 'gray.900'); // Main content background
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const textColor = useColorModeValue('gray.700', 'white');
+  const hoverBg = useColorModeValue('gray.100', 'gray.700');
+  const activeBg = useColorModeValue('teal.100', 'teal.700');
+  const iconColorActive = useColorModeValue('teal.500', 'teal.200');
+  const bgHeader = useColorModeValue('white', 'gray.800');
+  const borderBottomColor = useColorModeValue('gray.200', 'gray.700');
+
+
+
+
+
+  
 
   // Set expanded from localStorage after mount
   useEffect(() => {
@@ -76,30 +89,6 @@ const SidebarWithHeader = ({ children }) => {
   }, [expanded, mounted]);
 
   const [activeKey, setActiveKey] = useState('dashboard');
-
-  // **Fetch user profile (commented out)**
-  /*
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          try {
-            const data = await fetchUserProfile(token);
-            setUser(data);
-          } catch (error) {
-            setUser(null);
-            logout(); // Ensure logout is called on error
-            router.push('/auth/Login');
-          }
-        } else {
-          router.push('/auth/Login');
-        }
-      }
-    };
-    fetchProfile();
-  }, [router, setUser, logout]);
-  */
 
   const handleToggle = () => {
     setExpanded(!expanded);
@@ -129,6 +118,12 @@ const SidebarWithHeader = ({ children }) => {
         handleToggle={handleToggle}
         logout={logout} // Pass logout function
         display={{ base: 'none', md: 'block' }}
+        bgSidebar={bgSidebar} // Passing values as props
+        borderColor={borderColor}
+        hoverBg={hoverBg}
+        activeBg={activeBg}
+        iconColorActive={iconColorActive}
+        textColor={textColor}
       />
 
       {/* Drawer for Mobile */}
@@ -147,6 +142,12 @@ const SidebarWithHeader = ({ children }) => {
             handleToggle={handleToggle}
             logout={logout} // Pass logout function
             isMobile
+            bgSidebar={bgSidebar}
+            borderColor={borderColor}
+            hoverBg={hoverBg}
+            activeBg={activeBg}
+            iconColorActive={iconColorActive}
+            textColor={textColor}
           />
         </DrawerContent>
       </Drawer>
@@ -158,6 +159,9 @@ const SidebarWithHeader = ({ children }) => {
         handleToggle={handleToggle}
         expanded={expanded}
         isMobile={isMobile}
+        bgHeader={bgHeader}
+        borderBottomColor={borderBottomColor}
+        textColor={textColor}
       />
 
       {/* Main Content */}
@@ -168,7 +172,7 @@ const SidebarWithHeader = ({ children }) => {
       >
         {/* Breadcrumb */}
         <Box
-          bg={useColorModeValue('white', 'gray.800')}
+          bg={bgSidebar}
           px={4}
           py={2}
           mb={4}
@@ -191,59 +195,6 @@ const SidebarWithHeader = ({ children }) => {
   );
 };
 
-// Define your navigation items
-const navigationItems = [
-  {
-    label: 'Dashboard',
-    eventKey: 'dashboard',
-    icon: FiHome,
-    roles: ['admin', 'operation_manager', 'finance_manager', 'user'],
-    path: '/dashboard',
-  },
-  {
-    label: 'Profile',
-    eventKey: 'profile',
-    icon: FiUser,
-    roles: ['admin', 'operation_manager', 'finance_manager', 'user'],
-    path: '/profile',
-  },
-  {
-    label: 'Campaigns',
-    eventKey: 'campaign',
-    icon: FiSpeaker,
-    roles: ['admin'],
-    path: '/campaign',
-  },
-  {
-    label: 'Users',
-    eventKey: 'users',
-    icon: FiUsers,
-    roles: ['admin'],
-    path: '/users',
-  },
-  {
-    label: 'Videos',
-    eventKey: 'video',
-    icon: FiVideo,
-    roles: ['admin', 'finance_manager', 'operation_manager'],
-    path: '/video',
-  },
-  {
-    label: 'Payments',
-    eventKey: 'payment',
-    icon: FiDollarSign,
-    roles: ['admin', 'finance_manager'],
-    path: '/payment',
-  },
-  {
-    label: 'Creators',
-    eventKey: 'creators',
-    icon: FiTrendingUp,
-    roles: ['admin', 'finance_manager', 'operation_manager', 'user'],
-    path: '/creators',
-  },
-];
-
 // Sidebar Content Component
 const SidebarContent = ({
   onClose,
@@ -254,19 +205,15 @@ const SidebarContent = ({
   handleToggle,
   isMobile,
   logout,
+  bgSidebar,
+  borderColor,
+  hoverBg,
+  activeBg,
+  iconColorActive,
+  textColor,
   ...rest
 }) => {
-  // **Hook Calls at the Top Level**
   const router = useRouter();
-  const { colorMode } = useColorMode();
-
-  // **Predefine all useColorModeValue calls**
-  const bgSidebar = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const iconColorActive = useColorModeValue('teal.500', 'teal.200');
-  const textColor = useColorModeValue('gray.700', 'gray.200');
-  const hoverBg = useColorModeValue('gray.100', 'gray.700');
-  const activeBg = useColorModeValue('teal.100', 'teal.700');
 
   // Set activeKey based on current path
   useEffect(() => {
@@ -314,7 +261,7 @@ const SidebarContent = ({
             aria-label="Toggle sidebar"
             icon={expanded ? <FiChevronLeft /> : <FiChevronRight />}
             size="sm"
-            _hover={{ bg: useColorModeValue('gray.200', 'gray.700') }}
+            _hover={{ bg: hoverBg }}
           />
         )}
         {/* Close Button for Mobile */}
@@ -325,7 +272,7 @@ const SidebarContent = ({
             aria-label="Close sidebar"
             icon={<FiChevronRight />}
             size="sm"
-            _hover={{ bg: useColorModeValue('gray.200', 'gray.700') }}
+            _hover={{ bg: hoverBg }}
           />
         )}
       </Flex>
@@ -352,7 +299,7 @@ const SidebarContent = ({
                   p={2.5}
                   mx={1}
                   borderRadius="md"
-                  bg={isActive ? activeBg : 'transparent'} // Use predefined activeBg
+                  bg={isActive ? activeBg : 'transparent'}
                   color={isActive ? iconColorActive : textColor}
                   cursor="pointer"
                   _hover={{
@@ -410,6 +357,58 @@ const SidebarContent = ({
   );
 };
 
+const navigationItems = [
+  {
+    label: 'Dashboard',
+    eventKey: 'dashboard',
+    icon: FiHome,
+    roles: ['admin', 'operation_manager', 'finance_manager', 'user'],
+    path: '/dashboard',
+  },
+  {
+    label: 'Profile',
+    eventKey: 'profile',
+    icon: FiUser,
+    roles: ['admin', 'operation_manager', 'finance_manager', 'user'],
+    path: '/profile',
+  },
+  {
+    label: 'Campaigns',
+    eventKey: 'campaign',
+    icon: FiSpeaker,
+    roles: ['admin'],
+    path: '/campaign',
+  },
+  {
+    label: 'Users',
+    eventKey: 'users',
+    icon: FiUsers,
+    roles: ['admin'],
+    path: '/users',
+  },
+  {
+    label: 'Videos',
+    eventKey: 'video',
+    icon: FiVideo,
+    roles: ['admin', 'finance_manager', 'operation_manager'],
+    path: '/video',
+  },
+  {
+    label: 'Payments',
+    eventKey: 'payment',
+    icon: FiDollarSign,
+    roles: ['admin', 'finance_manager'],
+    path: '/payment',
+  },
+  {
+    label: 'Creators',
+    eventKey: 'creators',
+    icon: FiTrendingUp,
+    roles: ['admin', 'finance_manager', 'operation_manager', 'user'],
+    path: '/creators',
+  },
+];
+
 // Header Component
 const Header = ({
   onOpen,
@@ -417,17 +416,14 @@ const Header = ({
   handleToggle,
   expanded,
   isMobile,
+  bgHeader,
+  borderBottomColor,
+  textColor,
   ...rest
 }) => {
-  // **Hook Calls at the Top Level**
   const { colorMode, toggleColorMode } = useColorMode();
   const router = useRouter();
   const { logout } = useAuth(); // Destructure logout from AuthContext
-
-  // **Predefine color values**
-  const bgHeader = useColorModeValue('white', 'gray.800');
-  const borderBottomColor = useColorModeValue('gray.200', 'gray.700');
-  const textColor = useColorModeValue('gray.700', 'white');
 
   const handleLogout = () => {
     logout();

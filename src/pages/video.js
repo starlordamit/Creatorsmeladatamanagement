@@ -1,6 +1,4 @@
-// pages/video-management.jsx
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Footer from "@/components/Footer";
 import {
   Box,
@@ -40,9 +38,6 @@ import {
   Text,
   RadioGroup,
   Radio,
-
-  Menu, MenuButton, MenuList, MenuItem
-
 } from "@chakra-ui/react";
 import {
   FiEdit,
@@ -54,11 +49,11 @@ import {
   FiXCircle,
   FiChevronUp,
   FiChevronDown,
-  FiEye
+  FiEye,
 } from "react-icons/fi";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx"; // Import for Excel export
+import * as XLSX from "xlsx";
 import SidebarWithHeader from "@/components/Navbar";
 import {
   fetchAllVideos,
@@ -120,7 +115,6 @@ export default function VideoManagementPage() {
   const tableHeaderBg = useColorModeValue("gray.100", "gray.900");
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
-  // State Variables
   const [videos, setVideos] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [formData, setFormData] = useState({
@@ -148,8 +142,6 @@ export default function VideoManagementPage() {
   const [selectedRows, setSelectedRows] = useState([]);
   const [sorting, setSorting] = useState({ field: null, direction: null });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-
-  // Columns for download/print
   const [selectedColumns, setSelectedColumns] = useState({
     video_id: true,
     profile_url: true,
@@ -163,8 +155,6 @@ export default function VideoManagementPage() {
     commission: true,
     creator_price: true,
   });
-
-  // State for managing column visibility
   const [visibleColumns, setVisibleColumns] = useState({
     video_id: true,
     profile_url: true,
@@ -178,7 +168,6 @@ export default function VideoManagementPage() {
     commission: true,
     creator_price: true,
   });
-
   const [downloadFormat, setDownloadFormat] = useState("excel");
 
   const columns = [
@@ -195,14 +184,7 @@ export default function VideoManagementPage() {
     { label: "Creator Price", key: "creator_price" },
   ];
 
-  useEffect(() => {
-    if (authToken) {
-      loadVideos(authToken);
-      loadCampaigns(authToken);
-    }
-  }, [authToken]);
-
-  const loadVideos = async (token) => {
+  const loadVideos = useCallback(async (token) => {
     try {
       const data = await fetchAllVideos(token);
       setVideos(data);
@@ -214,9 +196,9 @@ export default function VideoManagementPage() {
         isClosable: true,
       });
     }
-  };
+  }, [toast]);
 
-  const loadCampaigns = async (token) => {
+  const loadCampaigns = useCallback(async (token) => {
     try {
       const data = await fetchCampaigns(token);
       setCampaigns(data);
@@ -228,7 +210,14 @@ export default function VideoManagementPage() {
         isClosable: true,
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    if (authToken) {
+      loadVideos(authToken);
+      loadCampaigns(authToken);
+    }
+  }, [authToken, loadVideos, loadCampaigns]);
 
   const handleSort = (field) => {
     const isAsc = sorting.field === field && sorting.direction === "asc";
@@ -276,10 +265,8 @@ export default function VideoManagementPage() {
     });
   };
 
-  // Filtered Videos
   const filteredVideos = videos.filter((video) => {
     const videoDate = new Date(video.live_date);
-
     let withinDateRange = true;
     if (filters.dateRange && filters.dateRange[0] && filters.dateRange[1]) {
       const [startDate, endDate] = filters.dateRange;
@@ -287,7 +274,6 @@ export default function VideoManagementPage() {
       const end = new Date(endDate.setHours(23, 59, 59, 999));
       withinDateRange = videoDate >= start && videoDate <= end;
     }
-
     return (
       (!filters.profile_url ||
         video.profile_url
@@ -314,7 +300,6 @@ export default function VideoManagementPage() {
         ...formData,
         user_id: user.user_id,
       };
-
       if (isEdit) {
         await updateVideo(selectedVideo.video_id, videoData, authToken);
         toast({
@@ -374,57 +359,7 @@ export default function VideoManagementPage() {
     }
   };
 
-  // Handle Download with Selected Columns
-//   const handleDownload = () => {
-//     const selectedKeys = columns
-//       .filter((col) => selectedColumns[col.key])
-//       .map((col) => col.key);
-//     const selectedLabels = columns
-//       .filter((col) => selectedColumns[col.key])
-//       .map((col) => col.label);
-
-//     const dataToExport =
-//       selectedRows.length > 0
-//         ? filteredVideos.filter((video) => selectedRows.includes(video.video_id))
-//         : filteredVideos;
-
-//     const tableRows = dataToExport.map((video) =>
-//       selectedKeys.map((key) => video[key])
-//     );
-
-//     if (downloadFormat === "pdf") {
-//       const doc = new jsPDF();
-//       autoTable(doc, {
-//         head: [selectedLabels],
-//         body: tableRows,
-//         theme: useColorModeValue("grid", "striped"),
-//         styles: {
-//           halign: "left",
-//           valign: "middle",
-//           fontSize: 10,
-//         },
-//       });
-//       doc.save("Report_" + Date.now() + ".pdf");
-//     } else if (downloadFormat === "excel") {
-//       const worksheetData = dataToExport.map((video) => {
-//         const rowData = {};
-//         selectedKeys.forEach((key, index) => {
-//           rowData[selectedLabels[index]] = video[key];
-//         });
-//         return rowData;
-//       });
-//       const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-//       const workbook = XLSX.utils.book_new();
-//       XLSX.utils.book_append_sheet(workbook, worksheet, "Videos");
-//       XLSX.writeFile(workbook, "Report_" + Date.now() + ".xlsx");
-//     }
-//     onDownloadModalClose();
-//   };
-
-const handleDownload = () => {
-    // const toast = useToast();
-  
-    // Check if no rows are selected
+  const handleDownload = (colorTheme) => {
     if (selectedRows.length === 0) {
       toast({
         title: "No video selected.",
@@ -433,31 +368,26 @@ const handleDownload = () => {
         duration: 3000,
         isClosable: true,
       });
-      return; // Stop the function if no rows are selected
+      return;
     }
-  
     const selectedKeys = columns
       .filter((col) => selectedColumns[col.key])
       .map((col) => col.key);
     const selectedLabels = columns
       .filter((col) => selectedColumns[col.key])
       .map((col) => col.label);
-  
-    const dataToExport =
-      selectedRows.length > 0
-        ? filteredVideos.filter((video) => selectedRows.includes(video.video_id))
-        : toast("Plese Select some videos to download.");
-  
+    const dataToExport = filteredVideos.filter((video) =>
+      selectedRows.includes(video.video_id)
+    );
     const tableRows = dataToExport.map((video) =>
       selectedKeys.map((key) => video[key])
     );
-  
     if (downloadFormat === "pdf") {
       const doc = new jsPDF();
       autoTable(doc, {
         head: [selectedLabels],
         body: tableRows,
-        theme: useColorModeValue("grid", "striped"),
+        theme: colorTheme,
         styles: {
           halign: "left",
           valign: "middle",
@@ -478,17 +408,12 @@ const handleDownload = () => {
       XLSX.utils.book_append_sheet(workbook, worksheet, "Videos");
       XLSX.writeFile(workbook, "Report_" + Date.now() + ".xlsx");
     }
-  
     onDownloadModalClose();
   };
 
-
-
-
-  // Apply column changes
   const applyColumnChanges = () => {
-    setVisibleColumns({ ...selectedColumns }); // Update visibleColumns based on selectedColumns
-    onDownloadModalClose(); // Close the modal after applying changes
+    setVisibleColumns({ ...selectedColumns });
+    onDownloadModalClose();
   };
 
   const openModal = (video = null) => {
@@ -526,139 +451,101 @@ const handleDownload = () => {
     onOpen();
   };
 
+  const colorTheme = useColorModeValue("grid", "striped");
+
   return (
     <>
-   
       {/* Header with Add Video and Actions */}
-
-<Box bg={cardBg} pl={2} pt={2} mb={2}  borderRadius="md" shadow="md">
-
-      <Flex justify="space-between" align="center" mb={4} flexWrap="wrap"
->
-        {/* Left-aligned Actions (Mobile-first, Single Row on Mobile) */}
-        <Flex 
-          direction={{ base: 'row', md: 'row' }}
-          align={{ base: 'center', md: 'center' }}
-          wrap="wrap"
-          justifyContent={{ base: 'space-between', md: 'flex-start' }} 
-        > 
-          {/* Column Visibility */}
-          {isMobile ? (
-            <Tooltip label="Column Visibility" aria-label="Column Visibility">
-              <IconButton
-                icon={<FiEye />} 
-                colorScheme="blue"
-                onClick={onDownloadModalOpen} 
-                mr={{ base: 2, md: 2 }} 
-                mb={2}
-                variant="outline"
-                aria-label="Column Visibility"
-              />
-            </Tooltip>
-          ) : (
-            <Button
-              leftIcon={<FiEye />}
-              colorScheme="blue"
-              variant="outline"
-              size="sm"
-              onClick={onDownloadModalOpen}
-              mb={2}
-              ml={{ base: 0, md: 2 }}
-            >
-              Column Visibility
-            </Button>
-          )}
-
-          {/* Download */}
-          {isMobile ? (
-            <Tooltip label="Download" aria-label="Download">
-              <IconButton
-                icon={<FiDownload />}
-                colorScheme="blue"
-                onClick={handleDownload} 
-                mr={{ base: 2, md: 2 }} 
-                mb={2}
-                variant="outline"
-                aria-label="Download"
-              />
-            </Tooltip>
-          ) : (
-            <Button
-              leftIcon={<FiDownload />}
-              colorScheme="blue"
-              variant="outline"
-              size="sm"
-              onClick={handleDownload}
-              mb={2}
-              ml={{ base: 0, md: 2 }}
-            >
-              Export
-            </Button>
-          )} 
-
-         
-
-          {/* Filter (Responsive Button/Icon) - Keep the existing code */}
-          {isMobile ? (
-            <Tooltip label={isFilterOpen ? "Hide Filters" : "Show Filters"} aria-label="Filter">
-              <IconButton
-                icon={<FiFilter />}
-                colorScheme="teal"
-                onClick={() => setIsFilterOpen(!isFilterOpen)}
-                mb={2}
-                mr={{ base: 0, md: 2 }} 
-                variant="outline"
-                aria-label="Filter"
-              />
-            </Tooltip>
-          ) : (
-            <Button
-              leftIcon={<FiFilter />}
-              colorScheme="teal"
-              variant="outline"
-              size="sm"
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              mb={2}
-              ml={{ base: 0, md: 2 }}
-            >
-              {isFilterOpen ? "Hide Filters" : "Show Filters"}
-            </Button>
-          )} 
-
-           {/* Add New Video (Responsive Button/Icon) */}
-           {isMobile ? (
-            <Tooltip label="Add New Video" aria-label="Add New Video">
+      <Box bg={cardBg} pl={2} pt={2} mb={2} borderRadius="md" shadow="md">
+        <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
+          <Flex
+            direction={{ base: "row", md: "row" }}
+            align={{ base: "center", md: "center" }}
+            wrap="wrap"
+            justifyContent={{ base: "space-between", md: "flex-start" }}
+          >
+            {isMobile ? (
+              <Tooltip label="Column Visibility" aria-label="Column Visibility">
+                <IconButton
+                  icon={<FiEye />}
+                  colorScheme="blue"
+                  onClick={onDownloadModalOpen}
+                  mr={{ base: 2, md: 2 }}
+                  mb={2}
+                  variant="outline"
+                  aria-label="Column Visibility"
+                />
+              </Tooltip>
+            ) : (
               <Button
-               leftIcon={<FiPlus />}
-               variant={"outline"}
+                leftIcon={<FiEye />}
+                colorScheme="blue"
+                variant="outline"
+                size="sm"
+                onClick={onDownloadModalOpen}
+                mb={2}
+                ml={{ base: 0, md: 2 }}
+              >
+                Column Visibility
+              </Button>
+            )}
+            {isMobile ? (
+              <Tooltip label="Download" aria-label="Download">
+                <IconButton
+                  icon={<FiDownload />}
+                  colorScheme="blue"
+                  onClick={() => handleDownload(colorTheme)}
+                  mr={{ base: 2, md: 2 }}
+                  mb={2}
+                  variant="outline"
+                  aria-label="Download"
+                />
+              </Tooltip>
+            ) : (
+              <Button
+                leftIcon={<FiDownload />}
+                colorScheme="blue"
+                variant="outline"
+                size="sm"
+                onClick={() => handleDownload(colorTheme)}
+                mb={2}
+                ml={{ base: 0, md: 2 }}
+              >
+                Export
+              </Button>
+            )}
+            {isMobile ? (
+              <Tooltip label="Add New Video" aria-label="Add New Video">
+                <Button
+                  leftIcon={<FiPlus />}
+                  variant={"outline"}
+                  colorScheme="teal"
+                  onClick={() => openModal()}
+                  mb={2}
+                  ml={2}
+                  aria-label="Add New Video"
+                >
+                  Add New Video
+                </Button>
+              </Tooltip>
+            ) : (
+              <Button
+                leftIcon={<FiPlus />}
+                variant={"outline"}
+                size={"sm"}
                 colorScheme="teal"
                 onClick={() => openModal()}
                 mb={2}
-                // ml={{ base: 0, md: 2 }}
-                // mr={{ base: 0, md: 2 }} 
-               
-                ml={2}
+                ml={{ base: 0, md: 2 }}
+                mr={{ base: 0, md: 2 }}
                 aria-label="Add New Video"
-              >Add New Video
-                </Button>
-            </Tooltip>
-           ): <Button
-           leftIcon={<FiPlus />}
-           variant={"outline"}
-           size={"sm"}
-            colorScheme="teal"
-            onClick={() => openModal()}
-            mb={2}
-            ml={{ base: 0, md: 2 }}
-            mr={{ base: 0, md: 2 }} 
-            aria-label="Add New Video"
-          >Add New Video
-            </Button>}
+              >
+                Add New Video
+              </Button>
+            )}
+          </Flex>
         </Flex>
-
-    </Flex>
-    </Box>
-
+      </Box>
 
       {/* Filters Section */}
       <Collapse in={isFilterOpen} animateOpacity>
@@ -704,10 +591,7 @@ const handleDownload = () => {
               bg={useColorModeValue("gray.50", "gray.600")}
             >
               {campaigns.map((campaign) => (
-                <option
-                  key={campaign.campaign_id}
-                  value={campaign.name}
-                >
+                <option key={campaign.campaign_id} value={campaign.name}>
                   {campaign.name}
                 </option>
               ))}
@@ -798,7 +682,11 @@ const handleDownload = () => {
           maxHeight={{ base: "400px", md: "600px" }}
           border={`1px solid ${borderColor}`}
         >
-          <Table variant="simple" size="sm" colorScheme={useColorModeValue("blackAlpha", "whiteAlpha")}>
+          <Table
+            variant="simple"
+            size="sm"
+            colorScheme={useColorModeValue("blackAlpha", "whiteAlpha")}
+          >
             <Thead bg={tableHeaderBg}>
               <Tr>
                 <Th width="40px">
@@ -816,27 +704,28 @@ const handleDownload = () => {
                     }
                   />
                 </Th>
-                {columns.slice(1).map((col) => (
-                  visibleColumns[col.key] && ( // Conditionally render Th based on visibility
-                    <Th
-                      key={col.key}
-                      onClick={() => handleSort(col.key)}
-                      cursor="pointer"
-                      whiteSpace="nowrap"
-                    >
-                      <Flex align="center">
-                        {col.label}
-                        {sorting.field === col.key ? (
-                          sorting.direction === "asc" ? (
-                            <FiChevronUp style={{ marginLeft: "4px" }} />
-                          ) : (
-                            <FiChevronDown style={{ marginLeft: "4px" }} />
-                          )
-                        ) : null}
-                      </Flex>
-                    </Th>
-                  )
-                ))}
+                {columns.slice(1).map(
+                  (col) =>
+                    visibleColumns[col.key] && (
+                      <Th
+                        key={col.key}
+                        onClick={() => handleSort(col.key)}
+                        cursor="pointer"
+                        whiteSpace="nowrap"
+                      >
+                        <Flex align="center">
+                          {col.label}
+                          {sorting.field === col.key ? (
+                            sorting.direction === "asc" ? (
+                              <FiChevronUp style={{ marginLeft: "4px" }} />
+                            ) : (
+                              <FiChevronDown style={{ marginLeft: "4px" }} />
+                            )
+                          ) : null}
+                        </Flex>
+                      </Th>
+                    )
+                )}
                 <Th width="80px">Actions</Th>
               </Tr>
             </Thead>
@@ -849,44 +738,57 @@ const handleDownload = () => {
                       onChange={() => handleRowSelect(video.video_id)}
                     />
                   </Td>
-                  {columns.slice(1).map((col) => 
-                    visibleColumns[col.key] && ( // Conditionally render Td based on visibility
-                      <Td key={col.key}>
-                        {col.key === "profile_url" || col.key === "video_url" ? (
-                          <Box
-                            whiteSpace="nowrap"
-                            overflow="hidden"
-                            textOverflow="ellipsis"
-                            maxWidth={{ base: "150px", md: "none" }}
-                          >
-                            <a href={video[col.key]} target="_blank" rel="noopener noreferrer">
-                              {video[col.key]}
-                            </a>
-                          </Box>
-                        ) : col.key === "video_status" || col.key === "payment_status" ? (
-                          <Badge
-                            colorScheme={
-                              video[col.key] === "live" || video[col.key] === "paid"
-                                ? "green"
-                                : video[col.key] === "progress" || video[col.key] === "pending"
-                                ? "yellow"
-                                : "red"
-                            }
-                          >
-                            {video[col.key].charAt(0).toUpperCase() + video[col.key].slice(1)}
-                          </Badge>
-                        ) : col.key === "live_date" ? (
-                          new Date(video[col.key]).toLocaleDateString()
-                        ) : col.key === "brand_price" || col.key === "commission" || col.key === "creator_price" ? (
-                          <Td isNumeric>{video[col.key]}</Td>
-                        ) : (video[col.key]) 
-                        }
-                      </Td>
-                    )
+                  {columns.slice(1).map(
+                    (col) =>
+                      visibleColumns[col.key] && (
+                        <Td key={col.key}>
+                          {col.key === "profile_url" ||
+                          col.key === "video_url" ? (
+                            <Box
+                              whiteSpace="nowrap"
+                              overflow="hidden"
+                              textOverflow="ellipsis"
+                              maxWidth={{ base: "150px", md: "none" }}
+                            >
+                              <a
+                                href={video[col.key]}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {video[col.key]}
+                              </a>
+                            </Box>
+                          ) : col.key === "video_status" ||
+                            col.key === "payment_status" ? (
+                            <Badge
+                              colorScheme={
+                                video[col.key] === "live" ||
+                                video[col.key] === "paid"
+                                  ? "green"
+                                  : video[col.key] === "progress" ||
+                                    video[col.key] === "pending"
+                                  ? "yellow"
+                                  : "red"
+                              }
+                            >
+                              {video[col.key]
+                                .charAt(0)
+                                .toUpperCase() + video[col.key].slice(1)}
+                            </Badge>
+                          ) : col.key === "live_date" ? (
+                            new Date(video[col.key]).toLocaleDateString()
+                          ) : col.key === "brand_price" ||
+                            col.key === "commission" ||
+                            col.key === "creator_price" ? (
+                            <Td isNumeric>{video[col.key]}</Td>
+                          ) : (
+                            video[col.key]
+                          )}
+                        </Td>
+                      )
                   )}
                   <Td>
                     <Flex>
-                      {/* Edit Button */}
                       <IconButton
                         icon={<FiEdit />}
                         size="sm"
@@ -895,8 +797,6 @@ const handleDownload = () => {
                         aria-label="Edit"
                         mr={2}
                       />
-
-                      {/* Delete Button */}
                       <IconButton
                         icon={<FiTrash2 />}
                         size="sm"
@@ -981,7 +881,11 @@ const handleDownload = () => {
                   bg={useColorModeValue("gray.100", "gray.500")}
                 />
               </FormControl>
-              <FormControl id="video_status" isRequired   hidden={!isEdit}>
+              <FormControl
+                id="video_status"
+                isRequired
+                hidden={!isEdit}
+              >
                 <FormLabel>Select Video Status</FormLabel>
                 <Select
                   placeholder="Select Video Status"
@@ -999,7 +903,9 @@ const handleDownload = () => {
               <FormControl id="live_date" isRequired>
                 <FormLabel>Live Date</FormLabel>
                 <DatePicker
-                  selected={formData.live_date ? new Date(formData.live_date) : null}
+                  selected={
+                    formData.live_date ? new Date(formData.live_date) : null
+                  }
                   onChange={(date) =>
                     setFormData((prev) => ({ ...prev, live_date: date }))
                   }
@@ -1030,17 +936,6 @@ const handleDownload = () => {
                   bg={useColorModeValue("gray.50", "gray.600")}
                 />
               </FormControl>
-              {/* <FormControl id="commission" isRequired>
-                <FormLabel>Commission</FormLabel>
-                <Input
-                  placeholder="Commission"
-                  name="commission"
-                  type="number"
-                  value={formData.commission}
-                  onChange={handleInputChange}
-                  bg={useColorModeValue("gray.50", "gray.600")}
-                />
-              </FormControl> */}
               <FormControl id="creator_price" isRequired>
                 <FormLabel>Creator Price</FormLabel>
                 <Input
@@ -1052,20 +947,6 @@ const handleDownload = () => {
                   bg={useColorModeValue("gray.50", "gray.600")}
                 />
               </FormControl>
-              {/* <FormControl id="payment_status" isRequired>
-                <FormLabel>Payment Status</FormLabel>
-                <Select
-                  placeholder="Select Payment Status"
-                  name="payment_status"
-                  value={formData.payment_status}
-                  onChange={handleInputChange}
-                  bg={useColorModeValue("gray.50", "gray.600")}
-                >
-                  <option value="paid">Paid</option>
-                  <option value="pending">Pending</option>
-                  <option value="overdue">Overdue</option>
-                </Select>
-              </FormControl> */}
             </Stack>
           </ModalBody>
 
@@ -1093,12 +974,8 @@ const handleDownload = () => {
           <ModalCloseButton />
           <ModalBody>
             <Stack spacing={6}>
-              {/* Enhanced Toggle Switches for Columns */}
               <FormControl as="fieldset">
-                {/* <FormLabel as="legend" fontWeight="semibold" fontSize="lg">
-                  Select Columns to Include
-                </FormLabel> */}
-                <Stack spacing={4}  overflowY="auto">
+                <Stack spacing={4} overflowY="auto">
                   {columns.map((col) => (
                     <Flex
                       key={col.key}
@@ -1123,72 +1000,18 @@ const handleDownload = () => {
                   ))}
                 </Stack>
               </FormControl>
-              {/* Download Format Selection */}
-              {/* <FormControl as="fieldset">
-                <FormLabel as="legend" fontWeight="semibold" fontSize="lg">
-                  Select Download Format
-                </FormLabel>
-                <RadioGroup
-                  value={downloadFormat}
-                  onChange={(value) => setDownloadFormat(value)}
-                >
-                  <Stack direction="row" spacing={6} justify="center">
-                    <Button
-                      as="label"
-                      htmlFor="pdf"
-                      leftIcon={<FiDownload />}
-                      variant={downloadFormat === "pdf" ? "solid" : "outline"}
-                      colorScheme="blue"
-                      size="md"
-                      cursor="pointer"
-                    >
-                      PDF
-                      <Radio
-                        value="pdf"
-                        id="pdf"
-                        display="none"
-                        readOnly
-                      />
-                    </Button>
-                    <Button
-                      as="label"
-                      htmlFor="excel"
-                      leftIcon={<FiDownload />}
-                      variant={downloadFormat === "excel" ? "solid" : "outline"}
-                      colorScheme="blue"
-                      size="md"
-                      cursor="pointer"
-                    >
-                      Excel
-                      <Radio
-                        value="excel"
-                        id="excel"
-                        display="none"
-                        readOnly
-                      />
-                    </Button>
-                  </Stack>
-                </RadioGroup>
-              </FormControl> */}
             </Stack>
           </ModalBody>
           <ModalFooter>
-            {/* Apply Button for Column Visibility */}
             <Button colorScheme="teal" mr={3} onClick={applyColumnChanges}>
               Apply
             </Button>
-
-            {/* <Button colorScheme="blue" mr={3} onClick={handleDownload}>
-              Download / Export
-            </Button> */}
             <Button onClick={onDownloadModalClose} variant="outline">
               Cancel
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
-      
-   </>
- 
+    </>
   );
 }
