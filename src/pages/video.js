@@ -528,7 +528,7 @@ const handleDownload = () => {
 
   return (
     <>
-    <SidebarWithHeader>
+   
       {/* Header with Add Video and Actions */}
 
 <Box bg={cardBg} pl={2} pt={2} mb={2}  borderRadius="md" shadow="md">
@@ -981,11 +981,12 @@ const handleDownload = () => {
                   bg={useColorModeValue("gray.100", "gray.500")}
                 />
               </FormControl>
-              <FormControl id="video_status" isRequired>
+              <FormControl id="video_status" isRequired   hidden={!isEdit}>
                 <FormLabel>Select Video Status</FormLabel>
                 <Select
                   placeholder="Select Video Status"
                   name="video_status"
+                  hidden={!isEdit}
                   value={formData.video_status}
                   onChange={handleInputChange}
                   bg={useColorModeValue("gray.50", "gray.600")}
@@ -1029,7 +1030,7 @@ const handleDownload = () => {
                   bg={useColorModeValue("gray.50", "gray.600")}
                 />
               </FormControl>
-              <FormControl id="commission" isRequired>
+              {/* <FormControl id="commission" isRequired>
                 <FormLabel>Commission</FormLabel>
                 <Input
                   placeholder="Commission"
@@ -1039,7 +1040,7 @@ const handleDownload = () => {
                   onChange={handleInputChange}
                   bg={useColorModeValue("gray.50", "gray.600")}
                 />
-              </FormControl>
+              </FormControl> */}
               <FormControl id="creator_price" isRequired>
                 <FormLabel>Creator Price</FormLabel>
                 <Input
@@ -1051,7 +1052,7 @@ const handleDownload = () => {
                   bg={useColorModeValue("gray.50", "gray.600")}
                 />
               </FormControl>
-              <FormControl id="payment_status" isRequired>
+              {/* <FormControl id="payment_status" isRequired>
                 <FormLabel>Payment Status</FormLabel>
                 <Select
                   placeholder="Select Payment Status"
@@ -1064,7 +1065,7 @@ const handleDownload = () => {
                   <option value="pending">Pending</option>
                   <option value="overdue">Overdue</option>
                 </Select>
-              </FormControl>
+              </FormControl> */}
             </Stack>
           </ModalBody>
 
@@ -1187,8 +1188,7 @@ const handleDownload = () => {
         </ModalContent>
       </Modal>
       
-    </SidebarWithHeader>
-    {/* <Footer></Footer> */}
-    </>
+   </>
+ 
   );
 }

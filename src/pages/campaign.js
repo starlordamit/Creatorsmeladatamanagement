@@ -130,7 +130,8 @@ export default function CampaignPage() {
   });
 
   return (
-    <SidebarWithHeader>
+    <>
+
       <Flex justify="space-between" align="center" mb={4}>
         <Button leftIcon={<FiFilter />} colorScheme="teal" onClick={() => setIsFilterOpen(!isFilterOpen)}>
           {isFilterOpen ? 'Hide Filters' : 'Show Filters'}
@@ -309,6 +310,7 @@ export default function CampaignPage() {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </SidebarWithHeader>
+ 
+   </>
   );
 }

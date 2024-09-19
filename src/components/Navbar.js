@@ -1,8 +1,6 @@
 // components/SidebarWithHeader.jsx
 
 import { useState, useEffect } from 'react';
-
-
 import {
   Box,
   Flex,
@@ -24,14 +22,14 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   useColorMode,
-  Link,
+  Link as ChakraLink,
   Icon,
-  Spacer,
-  Heading
+  Heading,
+  Tooltip,
+  Divider,
 } from '@chakra-ui/react';
 import {
   FiMenu,
-  FiBell,
   FiChevronDown,
   FiChevronLeft,
   FiChevronRight,
@@ -44,6 +42,7 @@ import {
   FiDollarSign,
   FiTrendingUp,
   FiSpeaker,
+  FiLogOut,
 } from 'react-icons/fi';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
@@ -51,20 +50,19 @@ import { fetchUserProfile } from '../services/api';
 
 const SidebarWithHeader = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { user, setUser } = useAuth();
+  const { user, setUser, logout } = useAuth();
   const router = useRouter();
   const [isMobile] = useMediaQuery('(max-width: 768px)');
 
   // Initialize states
-  const [expanded, setExpanded] = useState(true); // Default to true
-  const [mounted, setMounted] = useState(false);  // To track if component is mounted
+  const [expanded, setExpanded] = useState(true); // Default to expanded
+  const [mounted, setMounted] = useState(false); // To track if component is mounted
 
   // Set expanded from localStorage after mount
   useEffect(() => {
     const savedExpanded = localStorage.getItem('sidebarExpanded');
     if (savedExpanded !== null) {
       const parsed = JSON.parse(savedExpanded);
-      console.log('Loaded sidebarExpanded from localStorage:', parsed);
       setExpanded(parsed);
     }
     setMounted(true); // Mark as mounted
@@ -72,47 +70,46 @@ const SidebarWithHeader = ({ children }) => {
 
   // Persist expand/collapse state in localStorage
   useEffect(() => {
-    if (mounted) { // Only update after mount to avoid SSR issues
+    if (mounted) {
       localStorage.setItem('sidebarExpanded', JSON.stringify(expanded));
-      console.log('Saved sidebarExpanded to localStorage:', expanded);
     }
   }, [expanded, mounted]);
 
   const [activeKey, setActiveKey] = useState('dashboard');
 
   // Fetch user profile
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          try {
-            const data = await fetchUserProfile(token);
-            setUser(data);
-          } catch (error) {
-            setUser(null);
-            router.push('/auth/Login');
-          }
-        } else {
-          router.push('/auth/Login');
-        }
-      }
-    };
-    fetchProfile();
-  }, [router, setUser]);
-
+  // useEffect(() => {
+  //   const fetchProfile = async () => {
+  //     if (typeof window !== 'undefined') {
+  //       const token = localStorage.getItem('authToken');
+  //       // const udata = localStorage.getItem('data')
+  //       if (token) {
+  //         try {
+  //           const data = await fetchUserProfile(token);
+  //           setUser(data);
+  //         } catch (error) {
+  //           setUser(null);
+  //           logout(); // Ensure logout is called on error
+  //           router.push('/auth/Login');
+  //         }
+  //       } else {
+  //         router.push('/auth/Login');
+  //       }
+  //     }
+  //   };
+  //   fetchProfile();
+  // }, [router, setUser, logout]);
+  
   const handleToggle = () => {
     setExpanded(!expanded);
   };
 
-  function capitalizeFirstLetter(string) {
-    if (string.length === 0) {
-      return string; // Return the empty string if it's empty
-    }
+  const capitalizeFirstLetter = (string) => {
+    if (string.length === 0) return string;
     return string[0].toUpperCase() + string.slice(1);
-  }
+  };
 
-  const pagePath = capitalizeFirstLetter(router.pathname.split('/')[1]);
+  const pagePath = capitalizeFirstLetter(router.pathname.split('/')[1] || 'Dashboard');
 
   // Prevent rendering until mounted to avoid hydration mismatch
   if (!mounted) {
@@ -120,8 +117,8 @@ const SidebarWithHeader = ({ children }) => {
   }
 
   return (
-    <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
-      {/* Sidebar */}
+    <Box minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')}>
+      {/* Sidebar for Desktop */}
       <SidebarContent
         onClose={onClose}
         user={user}
@@ -129,21 +126,30 @@ const SidebarWithHeader = ({ children }) => {
         activeKey={activeKey}
         setActiveKey={setActiveKey}
         handleToggle={handleToggle}
+        logout={logout} // Pass logout function
         display={{ base: 'none', md: 'block' }}
       />
-      {/* Mobile Drawer */}
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
-        <DrawerContent maxW="60vw" w="60vw" overflow="hidden">
+
+      {/* Drawer for Mobile */}
+      <Drawer
+        isOpen={isOpen}
+        placement="right" // Sidebar opens from the right on mobile
+        onClose={onClose}
+      >
+        <DrawerContent maxW="80vw" w="80vw" overflow="hidden">
           <SidebarContent
             onClose={onClose}
             user={user}
             expanded={true} // Always expanded in mobile view
             activeKey={activeKey}
             setActiveKey={setActiveKey}
+            handleToggle={handleToggle}
+            logout={logout} // Pass logout function
             isMobile
           />
         </DrawerContent>
       </Drawer>
+
       {/* Header */}
       <Header
         onOpen={onOpen}
@@ -152,10 +158,11 @@ const SidebarWithHeader = ({ children }) => {
         expanded={expanded}
         isMobile={isMobile}
       />
+
       {/* Main Content */}
       <Box
-        ml={{ base: 0, md: expanded ? '240px' : '56px' }}
-        transition="margin-left 0.2s"
+        ml={{ base: 0, md: expanded ? '240px' : '60px' }}
+        transition="margin-left 0.3s ease"
         p="4"
       >
         {/* Breadcrumb */}
@@ -165,12 +172,13 @@ const SidebarWithHeader = ({ children }) => {
           py={2}
           mb={4}
           borderRadius="md"
-          boxShadow="md"
+          boxShadow="sm"
         >
-          <Breadcrumb>
+          <Breadcrumb spacing="8px" separator={<FiChevronRight color="gray.500" />}>
             <BreadcrumbItem>
               <BreadcrumbLink href="/">Home</BreadcrumbLink>
             </BreadcrumbItem>
+
             <BreadcrumbItem isCurrentPage>
               <BreadcrumbLink href="#">{pagePath}</BreadcrumbLink>
             </BreadcrumbItem>
@@ -188,46 +196,54 @@ const navigationItems = [
     label: 'Dashboard',
     eventKey: 'dashboard',
     icon: FiHome,
-    roles: ['admin', 'operation_manager', 'finance_manager','user'],
+    roles: ['admin', 'operation_manager', 'finance_manager', 'user'],
+    path: '/dashboard',
   },
   {
     label: 'Profile',
     eventKey: 'profile',
     icon: FiUser,
-    roles: ['admin', 'operation_manager', 'finance_manager','user'],
+    roles: ['admin', 'operation_manager', 'finance_manager', 'user'],
+    path: '/profile',
   },
   {
     label: 'Campaigns',
     eventKey: 'campaign',
     icon: FiSpeaker,
     roles: ['admin'],
+    path: '/campaign',
   },
   {
     label: 'Users',
     eventKey: 'users',
     icon: FiUsers,
     roles: ['admin'],
+    path: '/users',
   },
   {
     label: 'Videos',
     eventKey: 'video',
     icon: FiVideo,
     roles: ['admin', 'finance_manager', 'operation_manager'],
+    path: '/video',
   },
   {
     label: 'Payments',
     eventKey: 'payment',
     icon: FiDollarSign,
     roles: ['admin', 'finance_manager'],
+    path: '/payment',
   },
   {
     label: 'Creators',
     eventKey: 'creators',
     icon: FiTrendingUp,
-    roles: ['admin', 'finance_manager', 'operation_manager','user'],
+    roles: ['admin', 'finance_manager', 'operation_manager', 'user'],
+    path: '/creators',
   },
 ];
 
+// Sidebar Content Component
 const SidebarContent = ({
   onClose,
   user,
@@ -236,6 +252,7 @@ const SidebarContent = ({
   setActiveKey,
   handleToggle,
   isMobile,
+  logout,
   ...rest
 }) => {
   const router = useRouter();
@@ -247,9 +264,16 @@ const SidebarContent = ({
     setActiveKey(path);
   }, [router.pathname, setActiveKey]);
 
-  const handleSelect = (eventKey) => {
+  const handleSelect = (eventKey, path) => {
+    if (eventKey === 'logout') {
+      // Handle logout
+      logout();
+      router.push('/auth/Login');
+      return;
+    }
+
     setActiveKey(eventKey);
-    router.push(`/${eventKey}`);
+    router.push(path);
     if (isMobile) {
       onClose(); // Close the drawer on mobile after navigation
     }
@@ -258,48 +282,59 @@ const SidebarContent = ({
   // Determine colors based on theme
   const bg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const iconColorActive = useColorModeValue('teal.600', 'teal.200');
-  const textColor = useColorModeValue('black', 'white');
+  const iconColorActive = useColorModeValue('teal.500', 'teal.200');
+  const textColor = useColorModeValue('gray.700', 'gray.200');
 
   return (
     <Box
-      transition="width 0.2s"
       bg={bg}
       borderRight="1px"
       borderRightColor={borderColor}
-      w={{ base: isMobile ? 'full' : expanded ? '240px' : '56px' }}
+      w={{ base: isMobile ? 'full' : expanded ? '240px' : '60px' }}
       pos="fixed"
       h="full"
       {...rest}
     >
+      {/* Sidebar Header */}
       <Flex
         h="20"
         alignItems="center"
         mx="4"
-        justifyContent="space-between"
+        justifyContent={expanded ? 'space-between' : 'center'}
       >
+        {/* <HStack spacing={3}>
+          <Icon as={FiTrendingUp} w={6} h={6} color="teal.500" />
+          {expanded && (
+            <Text fontSize="2xl" fontWeight="bold" color="teal.500">
+              CreatorsMela
+            </Text>
+          )}
+        </HStack> */}
+        {/* Toggle Button for Desktop */}
         {!isMobile && (
           <IconButton
             onClick={handleToggle}
             variant="ghost"
             aria-label="Toggle sidebar"
             icon={expanded ? <FiChevronLeft /> : <FiChevronRight />}
-            size="md"
-            borderRadius="md"
+            size="sm"
             _hover={{ bg: useColorModeValue('gray.200', 'gray.700') }}
-            color={textColor}
           />
         )}
+        {/* Close Button for Mobile */}
         {isMobile && (
           <IconButton
             onClick={onClose}
             variant="ghost"
             aria-label="Close sidebar"
-            icon={expanded ? <FiChevronRight /> : <FiChevronLeft />}
-            color={textColor}
+            icon={<FiChevronRight />}
+            size="sm"
+            _hover={{ bg: useColorModeValue('gray.200', 'gray.700') }}
           />
         )}
       </Flex>
+
+      {/* Navigation Items */}
       <VStack align="stretch" mt={4} spacing={1}>
         {navigationItems.map((item) => {
           // Check if user has access based on role
@@ -308,36 +343,78 @@ const SidebarContent = ({
           }
           const isActive = activeKey === item.eventKey;
           return (
-            <Link
+            <ChakraLink
               key={item.eventKey}
-              px={4}
-              py={2}
-              display="flex"
-              alignItems="center"
-              onClick={() => handleSelect(item.eventKey)}
-              bg={
-                isActive
-                  ? useColorModeValue('teal.100', 'teal.700')
-                  : 'transparent'
-              }
-              color={isActive ? iconColorActive : textColor}
-              _hover={{
-                textDecor: 'none',
-                bg: useColorModeValue('gray.100', 'gray.700'),
-              }}
-              borderRadius="md"
-              cursor="pointer"
+              href="#"
+              onClick={() => handleSelect(item.eventKey, item.path)}
+              style={{ textDecoration: 'none' }}
             >
-              <Icon as={item.icon} mr={expanded ? 3 : 0} />
-              {expanded && item.label}
-            </Link>
+              <Tooltip label={expanded ? '' : item.label} placement="right">
+                <Flex
+                  align="center"
+                  mr={4}
+                  p={2.5}
+                  mx={1}
+                  borderRadius="md"
+                  bg={isActive ? useColorModeValue('teal.100', 'teal.700') : 'transparent'}
+                  color={isActive ? iconColorActive : textColor}
+                  cursor="pointer"
+                  _hover={{
+                    bg: useColorModeValue('gray.100', 'gray.700'),
+                    color: iconColorActive,
+                  }}
+                  transition="background 0.2s ease, color 0.2s ease"
+                >
+                  <Icon as={item.icon} w={5} h={5} />
+                  {expanded && (
+                    <Text ml={4} fontSize="md">
+                      {item.label}
+                    </Text>
+                  )}
+                </Flex>
+              </Tooltip>
+            </ChakraLink>
           );
         })}
       </VStack>
+
+      {/* Logout Button */}
+      <Box position="absolute" bottom="4" w="full">
+        <ChakraLink
+          href="#"
+          onClick={() => handleSelect('logout', '/auth/Login')}
+          style={{ textDecoration: 'none' }}
+        >
+          <Tooltip label={expanded ? '' : 'Logout'} placement="right">
+            <Flex
+              align="center"
+              mr={4}
+                  p={2.5}
+                  mx={1}
+              borderRadius="md"
+              bg="red.100"
+              color="red.500"
+              cursor="pointer"
+              _hover={{
+                bg: 'red.200',
+              }}
+              transition="background 0.2s ease"
+            >
+              <Icon as={FiLogOut} w={5} h={5} />
+              {expanded && (
+                <Text ml={4} fontSize="md">
+                  Logout
+                </Text>
+              )}
+            </Flex>
+          </Tooltip>
+        </ChakraLink>
+      </Box>
     </Box>
   );
 };
 
+// Header Component
 const Header = ({
   onOpen,
   user,
@@ -346,9 +423,9 @@ const Header = ({
   isMobile,
   ...rest
 }) => {
-  const { logout } = useAuth();
-  const router = useRouter();
   const { colorMode, toggleColorMode } = useColorMode();
+  const router = useRouter();
+  const { logout } = useAuth(); // Destructure logout from AuthContext
 
   const handleLogout = () => {
     logout();
@@ -356,12 +433,10 @@ const Header = ({
   };
 
   return (
-    <>
-   
     <Flex
-      ml={{ base: 0, md: expanded ? '240px' : '56px' }}
-      transition="margin-left 0.2s"
-      px={{ base: 4, md: 4 }}
+      ml={{ base: 0, md: expanded ? '240px' : '60px' }}
+      transition="margin-left 0.3s ease"
+      px={{ base: 4, md: 6 }}
       height="20"
       alignItems="center"
       bg={useColorModeValue('white', 'gray.800')}
@@ -371,81 +446,78 @@ const Header = ({
       {...rest}
     >
       <Flex alignItems="center">
-        {isMobile ? (
+        {/* Hamburger Menu for Mobile */}
+        {isMobile && (
           <IconButton
-            display={{ base: 'flex', md: 'none' }}
             onClick={onOpen}
             variant="ghost"
             aria-label="Open menu"
             icon={<FiMenu />}
+            mr={2}
           />
-        ) : null}
+        )}
+        {/* Brand Name */}
         <Heading
-              fontSize={{ base: '1xl', sm: '2xl', md: '2xl' }}
-              bgGradient='linear(to-r, blue.400, purple.400)'
-              bgClip='text'
-              fontWeight='extrabold'
-            >
-              CreatorsMela
-            </Heading>
+          fontSize={{ base: 'lg', md: 'xl' }}
+          bgGradient="linear(to-r, teal.400, green.400)"
+          bgClip="text"
+          fontWeight="extrabold"
+        >
+          CreatorsMela
+        </Heading>
       </Flex>
-      <HStack spacing={{ base: '0', md: '6' }}>
+      <HStack spacing={4}>
         {/* Color Mode Toggle Button */}
         <IconButton
-          size="lg"
-          variant="ghost"
-          aria-label="Toggle Color Mode"
-          onClick={toggleColorMode}
+          aria-label="Toggle color mode"
           icon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
-        />
-        {/* <IconButton
-          size="lg"
+          onClick={toggleColorMode}
           variant="ghost"
-          aria-label="Notifications"
-          icon={<FiBell />}
-        /> */}
-        <Flex alignItems="center">
-          <Menu>
-            <MenuButton
-              py={2}
-              transition="all 0.3s"
-              _focus={{ boxShadow: 'none' }}
-            >
-              <HStack>
-                <Avatar
-                  size="sm"
-                  src={user?.profilePic || 'https://bit.ly/dan-abramov'}
-                />
-                <VStack
-                  display={{ base: 'none', md: 'flex' }}
-                  alignItems="flex-start"
-                  spacing="1px"
-                  ml="2"
-                >
-                  <Text fontSize="sm">{user?.name || 'Loading...'}</Text>
-                  <Text fontSize="xs" color="gray.600">
-                    {user?.role || ''}
-                  </Text>
-                </VStack>
-                <Box display={{ base: 'none', md: 'flex' }}>
-                  <FiChevronDown />
-                </Box>
-              </HStack>
-            </MenuButton>
-            <MenuList
-              bg={useColorModeValue('white', 'gray.800')}
-              borderColor={useColorModeValue('gray.200', 'gray.700')}
-            >
-              <MenuItem onClick={handleLogout}>Sign out</MenuItem>
-            </MenuList>
-          </Menu>
-        </Flex>
+        />
+         {/* <Avatar
+              size="sm"
+              src={user?.profilePic || 'https://bit.ly/broken-link'}
+              mr={isMobile ? 0 : 2}
+            /> */}
+            {!isMobile && (
+              <VStack
+                display="flex"
+                alignItems="flex-start"
+                spacing="1px"
+                ml="2"
+              >
+                <Text fontSize="sm" color={useColorModeValue('gray.700', 'white')}>
+                  {user?.name || 'User'}
+                </Text>
+                <Text fontSize="xs" color="gray.500">
+                  {user?.role || ''}
+                </Text>
+              </VStack>
+            )}
+
+        {/* User Menu */}
+        {/* <Menu>
+          <MenuButton
+            as={Flex}
+            alignItems="center"
+            cursor="pointer"
+            _hover={{ textDecoration: 'none' }}
+          >
+           
+            {!isMobile && <Icon as={FiChevronDown} ml={1} />}
+          </MenuButton>
+          <MenuList
+            bg={useColorModeValue('white', 'gray.800')}
+            borderColor={useColorModeValue('gray.200', 'gray.700')}
+          >
+            <MenuItem onClick={() => router.push('/profile')}>Profile</MenuItem>
+            <MenuItem onClick={() => router.push('/settings')}>Settings</MenuItem>
+            <Divider />
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </MenuList>
+        </Menu> */}
       </HStack>
-     
     </Flex>
-   
- </>
-    
   );
 };
 

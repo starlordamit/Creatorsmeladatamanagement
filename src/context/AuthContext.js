@@ -12,7 +12,6 @@ export const useAuth = () => useContext(AuthContext)
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null) // State to store user info
   const [authToken, setAuthToken] = useState(null) // State to store token
-  const [loading, setLoading] = useState(true) // New loading state
   const router = useRouter()
 
   useEffect(() => {
@@ -20,17 +19,11 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       setAuthToken(token)
       fetchUserProfile(token)
-        .then((data) => {
-          setUser(data)
-          setLoading(false) // Authentication check complete
-        })
+        .then((data) => setUser(data))
         .catch(() => {
           setUser(null)
-          setLoading(false)
           localStorage.removeItem('authToken') // Clear invalid token
         })
-    } else {
-      setLoading(false) // No token, authentication check complete
     }
   }, [])
 
@@ -60,7 +53,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, authToken, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, authToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

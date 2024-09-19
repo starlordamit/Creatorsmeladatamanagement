@@ -113,7 +113,7 @@ export default function PaymentsPage() {
   });
 
   return (
-    <SidebarWithHeader>
+    <>
       {/* Navbar included */}
       <Box
         borderWidth="1px"
@@ -317,6 +317,6 @@ export default function PaymentsPage() {
           </Table>
         </Box>
       </Box>
-    </SidebarWithHeader>
+    </>
   );
 }

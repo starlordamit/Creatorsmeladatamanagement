@@ -177,7 +177,7 @@ const CreatorsPage = () => {
   });
 
   return (
-    <SidebarWithHeader>
+  <>
       {/* <Flex align="center" mb={4}>
         <Heading size="lg">Creators</Heading>
         <Spacer />
@@ -454,7 +454,8 @@ const CreatorsPage = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </SidebarWithHeader>
+
+      </>
   );
 };
 

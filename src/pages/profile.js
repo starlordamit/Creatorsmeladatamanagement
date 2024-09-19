@@ -93,7 +93,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <SidebarWithHeader>
+    <>
       <Center py={6}>
         <Box
           maxW={'320px'}
@@ -207,7 +207,7 @@ const ProfilePage = () => {
           )}
         </Box>
       </Center>
-    </SidebarWithHeader>
+    </>
   )
 }
 

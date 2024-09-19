@@ -163,7 +163,7 @@ export default function UserManagementPage() {
   };
 
   return (
-    <SidebarWithHeader>
+   <>
       <Flex justify="space-between" align="center" mb={4}>
         <Button
           leftIcon={<FiFilter />}
@@ -343,6 +343,6 @@ export default function UserManagementPage() {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </SidebarWithHeader>
+    </>
   );
 }
