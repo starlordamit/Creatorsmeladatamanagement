@@ -49,6 +49,10 @@ import { useAuth } from '../context/AuthContext';
 import { fetchUserProfile } from '../services/api';
 
 const SidebarWithHeader = ({ children }) => {
+  // **Hook Calls at the Top Level**
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const bgSidebar = useColorModeValue('white', 'gray.800'); // Moved outside conditional
+  const bgMain = useColorModeValue('gray.50', 'gray.900'); // Predefined variable
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user, setUser, logout } = useAuth();
   const router = useRouter();
@@ -77,29 +81,30 @@ const SidebarWithHeader = ({ children }) => {
 
   const [activeKey, setActiveKey] = useState('dashboard');
 
-  // Fetch user profile
-  // useEffect(() => {
-  //   const fetchProfile = async () => {
-  //     if (typeof window !== 'undefined') {
-  //       const token = localStorage.getItem('authToken');
-  //       // const udata = localStorage.getItem('data')
-  //       if (token) {
-  //         try {
-  //           const data = await fetchUserProfile(token);
-  //           setUser(data);
-  //         } catch (error) {
-  //           setUser(null);
-  //           logout(); // Ensure logout is called on error
-  //           router.push('/auth/Login');
-  //         }
-  //       } else {
-  //         router.push('/auth/Login');
-  //       }
-  //     }
-  //   };
-  //   fetchProfile();
-  // }, [router, setUser, logout]);
-  
+  // **Fetch user profile (commented out)**
+  /*
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+          try {
+            const data = await fetchUserProfile(token);
+            setUser(data);
+          } catch (error) {
+            setUser(null);
+            logout(); // Ensure logout is called on error
+            router.push('/auth/Login');
+          }
+        } else {
+          router.push('/auth/Login');
+        }
+      }
+    };
+    fetchProfile();
+  }, [router, setUser, logout]);
+  */
+
   const handleToggle = () => {
     setExpanded(!expanded);
   };
@@ -111,13 +116,13 @@ const SidebarWithHeader = ({ children }) => {
 
   const pagePath = capitalizeFirstLetter(router.pathname.split('/')[1] || 'Dashboard');
 
-  // Prevent rendering until mounted to avoid hydration mismatch
+  // **Prevent rendering until mounted to avoid hydration mismatch**
   if (!mounted) {
     return null; // Or a loading spinner if preferred
   }
 
   return (
-    <Box minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')}>
+    <Box minH="100vh" bg={bgMain}>
       {/* Sidebar for Desktop */}
       <SidebarContent
         onClose={onClose}
@@ -255,8 +260,16 @@ const SidebarContent = ({
   logout,
   ...rest
 }) => {
+  // **Hook Calls at the Top Level**
   const router = useRouter();
   const { colorMode } = useColorMode();
+
+  // Predefine color values
+  const bgSidebar = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const iconColorActive = useColorModeValue('teal.500', 'teal.200');
+  const textColor = useColorModeValue('gray.700', 'gray.200');
+  const hoverBg = useColorModeValue('gray.100', 'gray.700');
 
   // Set activeKey based on current path
   useEffect(() => {
@@ -279,15 +292,9 @@ const SidebarContent = ({
     }
   };
 
-  // Determine colors based on theme
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const iconColorActive = useColorModeValue('teal.500', 'teal.200');
-  const textColor = useColorModeValue('gray.700', 'gray.200');
-
   return (
     <Box
-      bg={bg}
+      bg={bgSidebar}
       borderRight="1px"
       borderRightColor={borderColor}
       w={{ base: isMobile ? 'full' : expanded ? '240px' : '60px' }}
@@ -302,14 +309,6 @@ const SidebarContent = ({
         mx="4"
         justifyContent={expanded ? 'space-between' : 'center'}
       >
-        {/* <HStack spacing={3}>
-          <Icon as={FiTrendingUp} w={6} h={6} color="teal.500" />
-          {expanded && (
-            <Text fontSize="2xl" fontWeight="bold" color="teal.500">
-              CreatorsMela
-            </Text>
-          )}
-        </HStack> */}
         {/* Toggle Button for Desktop */}
         {!isMobile && (
           <IconButton
@@ -360,7 +359,7 @@ const SidebarContent = ({
                   color={isActive ? iconColorActive : textColor}
                   cursor="pointer"
                   _hover={{
-                    bg: useColorModeValue('gray.100', 'gray.700'),
+                    bg: hoverBg,
                     color: iconColorActive,
                   }}
                   transition="background 0.2s ease, color 0.2s ease"
@@ -389,8 +388,8 @@ const SidebarContent = ({
             <Flex
               align="center"
               mr={4}
-                  p={2.5}
-                  mx={1}
+              p={2.5}
+              mx={1}
               borderRadius="md"
               bg="red.100"
               color="red.500"
@@ -423,9 +422,15 @@ const Header = ({
   isMobile,
   ...rest
 }) => {
+  // **Hook Calls at the Top Level**
   const { colorMode, toggleColorMode } = useColorMode();
   const router = useRouter();
   const { logout } = useAuth(); // Destructure logout from AuthContext
+
+  // Predefine color values
+  const bgHeader = useColorModeValue('white', 'gray.800');
+  const borderBottomColor = useColorModeValue('gray.200', 'gray.700');
+  const textColor = useColorModeValue('gray.700', 'white');
 
   const handleLogout = () => {
     logout();
@@ -439,9 +444,9 @@ const Header = ({
       px={{ base: 4, md: 6 }}
       height="20"
       alignItems="center"
-      bg={useColorModeValue('white', 'gray.800')}
+      bg={bgHeader}
       borderBottomWidth="1px"
-      borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
+      borderBottomColor={borderBottomColor}
       justifyContent="space-between"
       {...rest}
     >
@@ -474,48 +479,21 @@ const Header = ({
           onClick={toggleColorMode}
           variant="ghost"
         />
-         {/* <Avatar
-              size="sm"
-              src={user?.profilePic || 'https://bit.ly/broken-link'}
-              mr={isMobile ? 0 : 2}
-            /> */}
-            {!isMobile && (
-              <VStack
-                display="flex"
-                alignItems="flex-start"
-                spacing="1px"
-                ml="2"
-              >
-                <Text fontSize="sm" color={useColorModeValue('gray.700', 'white')}>
-                  {user?.name || 'User'}
-                </Text>
-                <Text fontSize="xs" color="gray.500">
-                  {user?.role || ''}
-                </Text>
-              </VStack>
-            )}
-
-        {/* User Menu */}
-        {/* <Menu>
-          <MenuButton
-            as={Flex}
-            alignItems="center"
-            cursor="pointer"
-            _hover={{ textDecoration: 'none' }}
+        {!isMobile && (
+          <VStack
+            display="flex"
+            alignItems="flex-start"
+            spacing="1px"
+            ml="2"
           >
-           
-            {!isMobile && <Icon as={FiChevronDown} ml={1} />}
-          </MenuButton>
-          <MenuList
-            bg={useColorModeValue('white', 'gray.800')}
-            borderColor={useColorModeValue('gray.200', 'gray.700')}
-          >
-            <MenuItem onClick={() => router.push('/profile')}>Profile</MenuItem>
-            <MenuItem onClick={() => router.push('/settings')}>Settings</MenuItem>
-            <Divider />
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-          </MenuList>
-        </Menu> */}
+            <Text fontSize="sm" color={textColor}>
+              {user?.name || 'User'}
+            </Text>
+            <Text fontSize="xs" color="gray.500">
+              {user?.role || ''}
+            </Text>
+          </VStack>
+        )}
       </HStack>
     </Flex>
   );
