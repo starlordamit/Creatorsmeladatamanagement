@@ -86,9 +86,9 @@ export default function ForgotPassword() {
               Forgot Your Password?
             </Heading>
             <Text fontSize={{ base: 'md', md: 'lg' }} color={'gray.600'}>
-              Enter your email address below and we'll send you a link to reset your password.{' '}
+              Enter your email address below and we&apos;ll send you a link to reset your password.{' '}
               <Text as="span" color={'blue.400'}>
-                It's quick and easy!
+                It&apos;s quick and easy!
               </Text>
             </Text>
           </Stack>

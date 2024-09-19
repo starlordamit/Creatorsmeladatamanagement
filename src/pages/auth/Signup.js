@@ -13,19 +13,21 @@ import {
   Button,
   Heading,
   Text,
-  useColorModeValue,
   Alert,
   InputGroup,
   InputLeftElement,
   IconButton,
   useBreakpointValue,
   ScaleFade,
-  InputRightElement
+  useColorMode,
+  useColorModeValue,
+  InputRightElement,
 } from '@chakra-ui/react'
 import { AtSignIcon, LockIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons' // Added icons
 import { signup } from '../../services/api' // Import the signup API function
 
 export default function Signup() {
+  // **State Management**
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -34,16 +36,41 @@ export default function Signup() {
   const [successMessage, setSuccessMessage] = useState('')
   const router = useRouter()
 
-  // Client-side rendering state
+  // **Color Mode Hooks**
+  const { colorMode, toggleColorMode } = useColorMode()
+
+  // **Predefine all useColorModeValue calls at the top level**
+  const bgGradient = useColorModeValue(
+    'linear(to-r, gray.50, gray.100)',
+    'linear(to-r, gray.800, gray.900)'
+  )
+  const bgBox = useColorModeValue('white', 'gray.700')
+  const borderColorBox = useColorModeValue('gray.200', 'gray.600')
+  const bgInput = useColorModeValue('gray.100', 'gray.600')
+  const bgInputFocus = useColorModeValue('white', 'gray.500')
+  const iconColor = useColorModeValue('gray.400', 'gray.400')
+  const alertBgError = useColorModeValue('red.100', 'red.600')
+  const alertColorError = useColorModeValue('red.700', 'white')
+  const alertBgSuccess = useColorModeValue('green.100', 'green.600')
+  const alertColorSuccess = useColorModeValue('green.700', 'white')
+  const btnBg = useColorModeValue('blue.400', 'blue.600')
+  const btnHoverBg = useColorModeValue('blue.500', 'blue.700')
+  const btnActiveBg = useColorModeValue('blue.600', 'blue.800')
+  const textColorGray = useColorModeValue('gray.500', 'gray.300')
+  const textColorBlue = useColorModeValue('blue.400', 'blue.300')
+
+  // **Client-side rendering state**
   const [isMounted, setIsMounted] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
+  // **Effect to Handle Mounting and Animation**
   useEffect(() => {
     setIsMounted(true)
     // Trigger the animation after mount
     setIsOpen(true)
   }, [])
 
+  // **Handle Signup Submission**
   const handleSignup = async (e) => {
     e.preventDefault()
     try {
@@ -54,16 +81,16 @@ export default function Signup() {
         router.push('/auth/Login') // Redirect to login after successful signup
       }, 2000)
     } catch (err) {
-      setError(err)
+      setError('Signup failed. Please try again.')
     }
   }
 
-  // Toggle password visibility
+  // **Toggle Password Visibility**
   const handleShowClick = () => setShowPassword(!showPassword)
 
-  // Prevent rendering until the client is mounted
+  // **Prevent Rendering Until Mounted to Avoid Hydration Mismatch**
   if (!isMounted) {
-    return null
+    return null // Or a loading spinner if preferred
   }
 
   return (
@@ -71,10 +98,7 @@ export default function Signup() {
       minH={'100vh'}
       align={'center'}
       justify={'center'}
-      bgGradient={useColorModeValue(
-        'linear(to-r, gray.50, gray.100)',
-        'linear(to-r, gray.800, gray.900)'
-      )}
+      bgGradient={bgGradient}
       px={4}
     >
       <ScaleFade initialScale={0.9} in={isOpen}>
@@ -88,6 +112,7 @@ export default function Signup() {
             >
               Create Your Account
             </Heading>
+            {/* Optional: Additional Text */}
             {/* <Text fontSize={{ base: 'md', md: 'lg' }} color={'gray.600'}>
               Join us and enjoy all of our cool{' '}
               <Text as="span" color={'blue.400'}>
@@ -98,20 +123,30 @@ export default function Signup() {
           </Stack>
           <Box
             rounded={'2xl'}
-            bg={useColorModeValue('white', 'gray.700')}
+            bg={bgBox}
             boxShadow={'2xl'}
             p={8}
             border="1px"
-            borderColor={useColorModeValue('gray.200', 'gray.600')}
+            borderColor={borderColorBox}
           >
             <Stack spacing={4}>
               {error && (
-                <Alert status="error" borderRadius="md">
+                <Alert
+                  status="error"
+                  borderRadius="md"
+                  bg={alertBgError}
+                  color={alertColorError}
+                >
                   {error}
                 </Alert>
               )}
               {successMessage && (
-                <Alert status="success" borderRadius="md">
+                <Alert
+                  status="success"
+                  borderRadius="md"
+                  bg={alertBgSuccess}
+                  color={alertColorSuccess}
+                >
                   {successMessage}
                 </Alert>
               )}
@@ -120,17 +155,17 @@ export default function Signup() {
                   <FormLabel>Full Name</FormLabel>
                   <InputGroup>
                     <InputLeftElement pointerEvents="none">
-                      <AtSignIcon color="gray.400" />
+                      <AtSignIcon color={iconColor} />
                     </InputLeftElement>
                     <Input
                       type="text"
                       placeholder="John Doe"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      bg={useColorModeValue('gray.100', 'gray.600')}
+                      bg={bgInput}
                       border={0}
                       _focus={{
-                        bg: useColorModeValue('white', 'gray.500'),
+                        bg: bgInputFocus,
                         boxShadow: 'outline',
                       }}
                     />
@@ -140,7 +175,7 @@ export default function Signup() {
                   <FormLabel>Email address</FormLabel>
                   <InputGroup>
                     <InputLeftElement pointerEvents="none">
-                      <AtSignIcon color="gray.400" />
+                      <AtSignIcon color={iconColor} />
                     </InputLeftElement>
                     <Input
                       type="email"
@@ -148,10 +183,10 @@ export default function Signup() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       autoComplete="email"
-                      bg={useColorModeValue('gray.100', 'gray.600')}
+                      bg={bgInput}
                       border={0}
                       _focus={{
-                        bg: useColorModeValue('white', 'gray.500'),
+                        bg: bgInputFocus,
                         boxShadow: 'outline',
                       }}
                     />
@@ -161,18 +196,18 @@ export default function Signup() {
                   <FormLabel>Password</FormLabel>
                   <InputGroup>
                     <InputLeftElement pointerEvents="none">
-                      <LockIcon color="gray.400" />
+                      <LockIcon color={iconColor} />
                     </InputLeftElement>
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      autoComplete="current-password"
-                      bg={useColorModeValue('gray.100', 'gray.600')}
+                      autoComplete="new-password"
+                      bg={bgInput}
                       border={0}
                       _focus={{
-                        bg: useColorModeValue('white', 'gray.500'),
+                        bg: bgInputFocus,
                         boxShadow: 'outline',
                       }}
                     />
@@ -189,15 +224,15 @@ export default function Signup() {
                 <Stack spacing={6} mt={6}>
                   <Button
                     type="submit"
-                    bg={'blue.400'}
+                    bg={btnBg}
                     color={'white'}
-                    size={{ base: 'md', md: 'lg' }} // Responsive size
+                    // size={useBreakpointValue({ base: 'md', md: 'lg' })}
                     fontWeight="bold"
                     _hover={{
-                      bg: 'blue.500',
+                      bg: btnHoverBg,
                     }}
                     _active={{
-                      bg: 'blue.600',
+                      bg: btnActiveBg,
                     }}
                     width="100%"
                     transition="background-color 0.2s"
@@ -206,11 +241,11 @@ export default function Signup() {
                   </Button>
                 </Stack>
               </form>
-              <Text align="center" mt={4} color={'gray.500'}>
+              <Text align="center" mt={4} color={textColorGray}>
                 Already have an account?{' '}
                 <Text
                   as="span"
-                  color={'blue.400'}
+                  color={textColorBlue}
                   cursor="pointer"
                   onClick={() => router.push('/auth/Login')}
                 >

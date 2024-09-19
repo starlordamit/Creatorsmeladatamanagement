@@ -14,10 +14,6 @@ import {
   DrawerContent,
   useDisclosure,
   useMediaQuery,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -51,8 +47,8 @@ import { fetchUserProfile } from '../services/api';
 const SidebarWithHeader = ({ children }) => {
   // **Hook Calls at the Top Level**
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const bgSidebar = useColorModeValue('white', 'gray.800'); // Moved outside conditional
-  const bgMain = useColorModeValue('gray.50', 'gray.900'); // Predefined variable
+  const bgSidebar = useColorModeValue('white', 'gray.800'); // Sidebar background
+  const bgMain = useColorModeValue('gray.50', 'gray.900'); // Main content background
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user, setUser, logout } = useAuth();
   const router = useRouter();
@@ -264,12 +260,13 @@ const SidebarContent = ({
   const router = useRouter();
   const { colorMode } = useColorMode();
 
-  // Predefine color values
+  // **Predefine all useColorModeValue calls**
   const bgSidebar = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const iconColorActive = useColorModeValue('teal.500', 'teal.200');
   const textColor = useColorModeValue('gray.700', 'gray.200');
   const hoverBg = useColorModeValue('gray.100', 'gray.700');
+  const activeBg = useColorModeValue('teal.100', 'teal.700');
 
   // Set activeKey based on current path
   useEffect(() => {
@@ -355,7 +352,7 @@ const SidebarContent = ({
                   p={2.5}
                   mx={1}
                   borderRadius="md"
-                  bg={isActive ? useColorModeValue('teal.100', 'teal.700') : 'transparent'}
+                  bg={isActive ? activeBg : 'transparent'} // Use predefined activeBg
                   color={isActive ? iconColorActive : textColor}
                   cursor="pointer"
                   _hover={{
@@ -427,7 +424,7 @@ const Header = ({
   const router = useRouter();
   const { logout } = useAuth(); // Destructure logout from AuthContext
 
-  // Predefine color values
+  // **Predefine color values**
   const bgHeader = useColorModeValue('white', 'gray.800');
   const borderBottomColor = useColorModeValue('gray.200', 'gray.700');
   const textColor = useColorModeValue('gray.700', 'white');
@@ -448,6 +445,10 @@ const Header = ({
       borderBottomWidth="1px"
       borderBottomColor={borderBottomColor}
       justifyContent="space-between"
+      position="fixed"
+      top="0"
+      width={{ base: '100%', md: `calc(100% - ${expanded ? '240px' : '60px'})` }}
+      zIndex="1000"
       {...rest}
     >
       <Flex alignItems="center">
