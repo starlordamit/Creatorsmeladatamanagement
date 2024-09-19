@@ -73,7 +73,7 @@ const CreatorsPage = () => {
     setFormData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  const handleSave = async () => {
+  const handleSave = async (authToken) => {
     try {
       if (isEdit) {
         await updateCreator(selectedCreatorId, formData, authToken);

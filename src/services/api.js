@@ -257,10 +257,10 @@ export const getCreatorsNameAndUrl = async (token) => {
 };
 
 // Update a creator (only accessible by admin, finance_manager, campaign_manager)
-export const updateCreator = async (creatorId, updatedData,token,) => {
+export const updateCreator = async (creatorId, updatedData,token) => {
   try {
 
-    const response = await axios.put(`${API_URL}/creators/update/${creatorId}`, updatedData, {
+    const response = await axios.put(`${API_URL}/creators/update/${creatorId}`,updatedData,  {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
