@@ -103,16 +103,9 @@ export default function Login() {
               bgClip="text"
               fontWeight="extrabold"
             >
-              Welcome Back!
+             Login Here !
             </Heading>
-            <IconButton
-              aria-label="Toggle dark mode"
-              icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-              onClick={toggleColorMode} // Toggles between light and dark modes
-              variant="ghost"
-              size="lg"
-              alignSelf="center"
-            />
+           
           </Stack>
           <Box
             rounded={'2xl'}

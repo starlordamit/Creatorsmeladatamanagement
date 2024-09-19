@@ -32,11 +32,13 @@ export default function ResetPassword() {
   const [successMessage, setSuccessMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
   const { token } = router.query // Get the token from the URL query
 
   useEffect(() => {
     if (!token) {
-      setError('Token is missing or invalid.')
+      <></>
+      // setError('Token is missing or invalid.')
     }
   }, [token])
 
@@ -61,7 +63,7 @@ export default function ResetPassword() {
         router.push('/auth/Login')
       }, 3000) // Redirect to login after 3 seconds
     } catch (err) {
-      setError(err.response?.data?.error || 'An unexpected error occurred. Please try again.')
+      setError(err.response?.data?.error || 'Token Expired try Again with new link')
     } finally {
       setIsLoading(false)
     }
