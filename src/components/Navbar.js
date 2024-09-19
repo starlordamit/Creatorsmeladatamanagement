@@ -441,10 +441,10 @@ const Header = ({
       borderBottomWidth="1px"
       borderBottomColor={borderBottomColor}
       justifyContent="space-between"
-      position="fixed"
+      // position="fixed"
       top="0"
       width={{ base: '100%', md: `calc(100% - ${expanded ? '240px' : '60px'})` }}
-      zIndex="1000"
+      // zIndex="1000"
       {...rest}
     >
       <Flex alignItems="center">

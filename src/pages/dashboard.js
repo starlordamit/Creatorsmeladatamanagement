@@ -159,11 +159,11 @@ export default function Dashboard() {
     video_count: item.video_count,
   }))
 
-  console.log('dateWiseData:', dateWiseData) // For debugging
+  // console.log('dateWiseData:', dateWiseData) // For debugging
 
   return (
     <>
-      <Flex bg={bg} minH="100vh">
+      <Flex  minH="100vh">
         {/* Sidebar for Desktop */}
         {/* <Sidebar isOpen={isOpen} onClose={onClose} /> */}
 
@@ -173,7 +173,7 @@ export default function Dashboard() {
           {/* <TopNav onOpen={onOpen} toggleColorMode={toggleColorMode} colorMode={colorMode} /> */}
 
           {/* Content Area */}
-          <Box p={{ base: 4, md: 8 }} bg={bg} flex="1">
+          <Box p={{ base: 2, md: 2 }} bg={bg} flex="1">
             {/* Metric Cards */}
             <Grid
               templateColumns={{
@@ -224,7 +224,7 @@ export default function Dashboard() {
               borderColor={borderColor}
               height="400px"
               w="full"
-              maxW="7xl"
+              // maxW="7xl"
             >
               <Heading size="md" mb={4} color={textColor}>
                 Last 30 Days Video Report
