@@ -22,7 +22,7 @@ function MyApp({ Component, pageProps }) {
   const router = useRouter()
 
   // Define the routes where Navbar should be hidden
-  const noNavbarRoutes = ['/auth/login', '/auth/signup','/auth/forgotpassword','/auth/reset']
+  const noNavbarRoutes = ['/auth/login', '/auth/signup','/auth/forgotpassword','/auth/reset','/']
 
   // Determine if the current route is in the excluded list
   const hideNavbar = noNavbarRoutes.includes(router.pathname.toLowerCase())
