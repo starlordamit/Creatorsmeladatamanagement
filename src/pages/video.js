@@ -1632,9 +1632,7 @@ export default function VideoManagementPage() {
                     <Text color="gray.600">Links:</Text>
                     <Text>
                       {selectedVideo
-                        ? selectedVideo.deliverables.promotionalLink.join(
-                            ","
-                          ) || 0
+                        ? selectedVideo.deliverables.promotionalLink || 0
                         : 0}
                     </Text>
                   </Flex>
