@@ -1472,7 +1472,9 @@ export default function VideoManagementPage() {
                     mb={2}
                   >
                     <Text color="gray.600">ID:</Text>
-                    <Text>{selectedVideo?.video_id || "N/A"}</Text>
+                    <Text>
+                      {selectedVideo ? selectedVideo.video_id || "N/A" : "N/A"}
+                    </Text>
                   </Flex>
                   <Flex
                     justifyContent="space-between"
@@ -1604,7 +1606,11 @@ export default function VideoManagementPage() {
                     mb={2}
                   >
                     <Text color="gray.600">Videos:</Text>
-                    <Text>{selectedVideo.deliverables.videos || 0}</Text>
+                    <Text>
+                      {selectedVideo
+                        ? selectedVideo.deliverables.videos || 0
+                        : 0}
+                    </Text>
                   </Flex>
                   <Flex
                     justifyContent="space-between"
@@ -1612,7 +1618,25 @@ export default function VideoManagementPage() {
                     mb={2}
                   >
                     <Text color="gray.600">Posts:</Text>
-                    <Text>{selectedVideo.deliverables.posts || 0}</Text>
+                    <Text>
+                      {selectedVideo
+                        ? selectedVideo.deliverables.posts || 0
+                        : 0}
+                    </Text>
+                  </Flex>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Links:</Text>
+                    <Text>
+                      {selectedVideo
+                        ? selectedVideo.deliverables.promotionalLink.join(
+                            ","
+                          ) || 0
+                        : 0}
+                    </Text>
                   </Flex>
                   {/* ... Add display for promotionalLink here */}
                 </Box>
