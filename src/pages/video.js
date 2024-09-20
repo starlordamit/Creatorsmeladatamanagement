@@ -5,10 +5,13 @@ import {
   Badge,
   Table,
   Thead,
+  Link,
   Tbody,
   Tr,
   Th,
   Td,
+  Icon,
+  CheckboxGroup,
   Checkbox,
   IconButton,
   Input,
@@ -20,6 +23,7 @@ import {
   ModalHeader,
   ModalCloseButton,
   ModalBody,
+  Grid,
   ModalFooter,
   useDisclosure,
   useToast,
@@ -38,6 +42,12 @@ import {
   Text,
   RadioGroup,
   Radio,
+  Spacer,
+  Alert,
+  AlertIcon,
+  Divider,
+  VStack,
+  Heading,
 } from "@chakra-ui/react";
 import {
   FiEdit,
@@ -50,6 +60,10 @@ import {
   FiChevronUp,
   FiChevronDown,
   FiEye,
+  FiMail,
+  FiInstagram,
+  FiTwitter,
+  FiYoutube,
 } from "react-icons/fi";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -67,6 +81,38 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function VideoManagementPage() {
+  // Existing useDisclosure hooks
+  const {
+    isOpen: isMailModalOpen,
+    onOpen: onMailModalOpen,
+    onClose: onMailModalClose,
+  } = useDisclosure();
+
+  // **New useDisclosure for Summary Modal**
+  const {
+    isOpen: isSummaryModalOpen,
+    onOpen: onSummaryModalOpen,
+    onClose: onSummaryModalClose,
+  } = useDisclosure();
+
+  // State for Mail Form Data
+  const [mailFormData, setMailFormData] = useState({
+    videoid: "",
+    platforms: [],
+    deliverables: {
+      videos: 0,
+      posts: 0,
+      promotionalLink: "",
+    },
+    price: "",
+    creatorEmail: "",
+
+    // is_already_sent: false,
+  });
+
+  // State to Manage Submission Status
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const predefinedRanges = [
     {
       label: "Today",
@@ -128,6 +174,8 @@ export default function VideoManagementPage() {
     // commission: "",
     creator_price: "",
     payment_status: "",
+    crtrmail: "",
+    platform: "",
   });
   const [campaigns, setCampaigns] = useState([]);
   const [filters, setFilters] = useState({
@@ -417,6 +465,76 @@ export default function VideoManagementPage() {
     onDownloadModalClose();
   };
 
+  // **Updated handleMailSubmit: Now can be called from Summary Modal**
+  const handleMailSubmit = async () => {
+    if (!authToken || !selectedVideo) return;
+    setIsSubmitting(true);
+    try {
+      // Prepare the payload
+      const payload = {
+        video_id: selectedVideo.video_id,
+
+        deliverables: mailFormData.deliverables,
+        promotionalLink: mailFormData.promotionalLink,
+      };
+
+      // Send POST request to the API
+      const response = await fetch(
+        "https://winner51.online/api/campaigns/confirmation-mail",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Failed to send confirmation email."
+        );
+      }
+
+      // Optionally, handle the response data
+      // const data = await response.json();
+
+      // Show success toast
+      toast({
+        title: "Email sent successfully!",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+
+      // Optionally, update the video state to indicate email was sent
+      setVideos((prevVideos) =>
+        prevVideos.map((video) =>
+          video.video_id === selectedVideo.video_id
+            ? { ...video, is_already_sent: true }
+            : video
+        )
+      );
+
+      // Close both Summary and Mail Modals
+      onSummaryModalClose();
+      onMailModalClose();
+    } catch (error) {
+      // Show error toast
+      toast({
+        title: "Error sending email",
+        description: error.message || "Something went wrong.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const applyColumnChanges = () => {
     setVisibleColumns({ ...selectedColumns });
     onDownloadModalClose();
@@ -433,9 +551,11 @@ export default function VideoManagementPage() {
         video_status: video.video_status || "",
         live_date: video.live_date ? new Date(video.live_date) : "",
         brand_price: video.brand_price || "",
-        commission: video.commission || "",
+        // commission: video.commission || "",
         creator_price: video.creator_price || "",
         payment_status: video.payment_status || "",
+        crtrmail: video.crtrmail || "",
+        platform: video.platform || "",
       });
       setIsEdit(true);
     } else {
@@ -448,7 +568,7 @@ export default function VideoManagementPage() {
         video_status: "",
         live_date: "",
         brand_price: "",
-        commission: "",
+        // commission: "",
         creator_price: "",
         payment_status: "",
       });
@@ -458,6 +578,24 @@ export default function VideoManagementPage() {
   };
 
   const colorTheme = useColorModeValue("grid", "striped");
+  const openMailModal = (video) => {
+    setSelectedVideo(video);
+    setMailFormData({
+      deliverables: {
+        videos: 1, // Default value as per your requirement
+        posts: 0,
+        promotionalLink: [],
+      },
+      videoid: selectedVideo?.video_id,
+    });
+    onMailModalOpen();
+  };
+
+  const openSummaryModal = (video) => {
+    setSelectedVideo(video);
+
+    onSummaryModalOpen();
+  };
 
   return (
     <>
@@ -785,13 +923,14 @@ export default function VideoManagementPage() {
                           ) : col.key === "brand_price" ||
                             col.key === "commission" ||
                             col.key === "creator_price" ? (
-                            <Td isNumeric>{video[col.key]}</Td>
+                            <Text isTruncated>{video[col.key]}</Text>
                           ) : (
                             video[col.key]
                           )}
                         </Td>
                       )
                   )}
+
                   <Td>
                     <Flex>
                       <IconButton
@@ -803,12 +942,32 @@ export default function VideoManagementPage() {
                         mr={2}
                       />
                       <IconButton
+                        isDisabled={video.mail_aproval}
+                        icon={<FiMail />}
+                        size="sm"
+                        colorScheme="purple"
+                        onClick={() => openMailModal(video)}
+                        aria-label="Send Mail"
+                        mr={2}
+                      />
+                      <IconButton
+                        // isDisabled={video.mail_aproval}
+                        icon={<FiEye />}
+                        size="sm"
+                        colorScheme="green"
+                        onClick={() => openSummaryModal(video)}
+                        aria-label="Send Mail"
+                        mr={2}
+                      />
+                      <IconButton
                         icon={<FiTrash2 />}
                         size="sm"
                         colorScheme="red"
-                        onClick={() => handleDelete(video.video_id)}
+                        onDoubleClick={() => handleDelete(video.video_id)}
+                        // onClick={}
                         aria-label="Delete"
                       />
+                      {/* New "Send Mail" Button */}
                     </Flex>
                   </Td>
                 </Tr>
@@ -948,6 +1107,32 @@ export default function VideoManagementPage() {
                   bg={useColorModeValue("gray.50", "gray.600")}
                 />
               </FormControl>
+              <FormControl id="crtrmail" isRequired>
+                <FormLabel>Creator Mail</FormLabel>
+                <Input
+                  placeholder="Creator Mail"
+                  name="crtrmail"
+                  type="email"
+                  value={formData.crtrmail}
+                  onChange={handleInputChange}
+                  bg={useColorModeValue("gray.50", "gray.600")}
+                />
+              </FormControl>
+              <FormControl id="platform" isRequired hidden={isEdit}>
+                <FormLabel>Platform</FormLabel>
+                <Select
+                  placeholder="Select Platform"
+                  name="platform"
+                  hidden={isEdit}
+                  value={formData.platform}
+                  onChange={handleInputChange}
+                  bg={useColorModeValue("gray.50", "gray.600")}
+                >
+                  <option value="youtube">Youtube</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="other">Other</option>
+                </Select>
+              </FormControl>
             </Stack>
           </ModalBody>
 
@@ -1008,6 +1193,464 @@ export default function VideoManagementPage() {
               Apply
             </Button>
             <Button onClick={onDownloadModalClose} variant="outline">
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* **Updated Send Mail Modal with "View Summary" Button** */}
+      <Modal
+        isOpen={isMailModalOpen}
+        onClose={onMailModalClose}
+        size={{ base: "md", md: "xl" }} // Responsive modal size
+        isCentered
+      >
+        <ModalOverlay />
+        <ModalContent bg={bgColor}>
+          <ModalHeader>Send Confirmation Email</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Stack spacing={4}>
+              <Box>
+                {/* Platform and Mail Status */}
+                <Flex alignItems="center" mb={2}>
+                  {selectedVideo && (
+                    <Badge
+                      colorScheme={
+                        selectedVideo.platform === "youtube"
+                          ? "red"
+                          : selectedVideo.platform === "instagram"
+                            ? "pink"
+                            : "blue"
+                      } // Customize colors based on platform
+                      // fontSize="md"
+                      mr={2} // Add some margin to the right
+                    >
+                      <Icon
+                        as={
+                          selectedVideo.platform === "youtube"
+                            ? FiYoutube
+                            : selectedVideo.platform === "instagram"
+                              ? FiInstagram
+                              : FiTwitter
+                        }
+                        mr={1}
+                      />{" "}
+                      {/* Add platform icon */}
+                      {selectedVideo.platform}
+                    </Badge>
+                  )}
+                  <Spacer />
+                  <Badge
+                    colorScheme={
+                      selectedVideo?.is_already_sent ? "orange" : "gray"
+                    }
+                  >
+                    Mail Status:{" "}
+                    {selectedVideo
+                      ? selectedVideo.is_already_sent
+                        ? "Sent"
+                        : "Not Sent"
+                      : ""}
+                  </Badge>
+                </Flex>
+
+                {/* Alert for Already Sent Email */}
+                {selectedVideo?.is_already_sent ? (
+                  <Alert status="warning" mb={4}>
+                    <AlertIcon />
+                    This email has already been sent. Sending again may result
+                    in duplicate notifications.
+                  </Alert>
+                ) : (
+                  <></>
+                )}
+
+                {/* Deliverables Section */}
+                <Stack spacing={3}>
+                  <FormControl id="videos" isRequired>
+                    <FormLabel>
+                      {selectedVideo
+                        ? selectedVideo.platform === "youtube"
+                          ? "Video"
+                          : selectedVideo.platform === "instagram"
+                            ? "Reel"
+                            : "Promotion"
+                        : ""}
+                    </FormLabel>
+                    <Input
+                      type="number"
+                      name="videos"
+                      value={mailFormData.deliverables.videos}
+                      onChange={(e) =>
+                        setMailFormData((prev) => ({
+                          ...prev,
+                          deliverables: {
+                            ...prev.deliverables,
+                            videos: e.target.value,
+                          },
+                        }))
+                      }
+                      bg={useColorModeValue("gray.50", "gray.600")}
+                    />
+                  </FormControl>
+                  <FormControl id="posts" isRequired>
+                    <FormLabel>
+                      {selectedVideo
+                        ? selectedVideo.platform === "youtube"
+                          ? "Community Post"
+                          : selectedVideo.platform === "instagram"
+                            ? "Story"
+                            : "Promotion"
+                        : ""}
+                    </FormLabel>
+                    <Input
+                      type="number"
+                      name="posts"
+                      value={mailFormData.deliverables.posts}
+                      onChange={(e) =>
+                        setMailFormData((prev) => ({
+                          ...prev,
+                          deliverables: {
+                            ...prev.deliverables,
+                            posts: e.target.value,
+                          },
+                        }))
+                      }
+                      bg={useColorModeValue("gray.50", "gray.600")}
+                    />
+                  </FormControl>
+
+                  {/* Promotional Link Options - Improved UI */}
+                  <FormControl id="promotionalLink" mt={4}>
+                    <FormLabel>Promotional Link Options</FormLabel>
+                    <CheckboxGroup
+                      colorScheme="green"
+                      value={mailFormData.deliverables.promotionalLink || []}
+                      onChange={(values) =>
+                        setMailFormData((prev) => ({
+                          ...prev,
+                          deliverables: {
+                            ...prev.deliverables,
+                            promotionalLink: values,
+                          },
+                        }))
+                      }
+                    >
+                      <Grid
+                        templateColumns={{
+                          base: "repeat(1, 1fr)",
+                          md: "repeat(2, 1fr)",
+                        }}
+                        gap={2}
+                      >
+                        {/* Responsive grid for checkboxes */}
+                        <Checkbox
+                          hidden={
+                            selectedVideo
+                              ? selectedVideo.platform === "youtube"
+                                ? false
+                                : selectedVideo.platform === "instagram"
+                                  ? true
+                                  : false
+                              : false
+                          }
+                          value="1"
+                        >
+                          Link in Description
+                        </Checkbox>
+                        <Checkbox
+                          hidden={
+                            selectedVideo
+                              ? selectedVideo.platform === "youtube"
+                                ? false
+                                : selectedVideo.platform === "instagram"
+                                  ? true
+                                  : false
+                              : false
+                          }
+                          value="2"
+                        >
+                          Link in Pinned Comment
+                        </Checkbox>
+                        <Checkbox
+                          hidden={
+                            selectedVideo
+                              ? selectedVideo.platform === "youtube"
+                                ? false
+                                : selectedVideo.platform === "instagram"
+                                  ? true
+                                  : false
+                              : false
+                          }
+                          value="3"
+                        >
+                          Link in About Section
+                        </Checkbox>
+                        <Checkbox
+                          hidden={
+                            selectedVideo
+                              ? selectedVideo.platform === "youtube"
+                                ? true
+                                : selectedVideo.platform === "instagram"
+                                  ? false
+                                  : false
+                              : false
+                          }
+                          value="4"
+                        >
+                          Link in Bio
+                        </Checkbox>
+                        <Checkbox
+                          hidden={
+                            selectedVideo
+                              ? selectedVideo.platform === "youtube"
+                                ? true
+                                : selectedVideo.platform === "instagram"
+                                  ? false
+                                  : false
+                              : false
+                          }
+                          value="5"
+                        >
+                          Link in Story
+                        </Checkbox>
+                      </Grid>
+                    </CheckboxGroup>
+                  </FormControl>
+                </Stack>
+              </Box>
+
+              {/* View Summary Button */}
+              <Button
+                colorScheme="blue"
+                onClick={handleMailSubmit}
+                alignSelf="flex-end"
+              >
+                Send For Approval
+              </Button>
+            </Stack>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button onClick={onMailModalClose} variant="outline">
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* **New Summary Confirmation Modal** */}
+
+      <Modal
+        isOpen={isSummaryModalOpen}
+        onClose={onSummaryModalClose}
+        size="md"
+        isCentered
+      >
+        <ModalOverlay />
+        <ModalContent bg={bgColor}>
+          <ModalHeader>Confirm Send Mail</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {/* Summary Details in List Format with Enhanced Visibility */}
+            <Stack spacing={5}>
+              <Text fontWeight="bold" fontSize="lg">
+                Please review before sending:
+              </Text>
+
+              <VStack align="stretch" spacing={4}>
+                {/* Video Details */}
+                <Box borderWidth="1px" borderRadius="md" p={4} boxShadow="md">
+                  <Heading size="sm" mb={2} color="gray.700">
+                    Video Details
+                  </Heading>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">ID:</Text>
+                    <Text>{selectedVideo?.video_id || "N/A"}</Text>
+                  </Flex>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Profile:</Text>
+                    <Link
+                      href={selectedVideo?.profile_url || "#"}
+                      isExternal
+                      color="teal.500"
+                    >
+                      {/* {selectedVideo?.profile_url || "N/A"} */}
+                      Profile
+                    </Link>
+                  </Flex>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Video URL:</Text>
+                    <Link
+                      href={selectedVideo?.video_url || "#"}
+                      isExternal
+                      color="teal.500"
+                    >
+                      Video
+                      {/* {selectedVideo?.video_url || "N/A"} */}
+                    </Link>
+                  </Flex>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Video Status:</Text>
+                    <Text>{selectedVideo?.video_status || "N/A"}</Text>
+                  </Flex>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Live Date:</Text>
+                    <Text>{selectedVideo?.live_date || "N/A"}</Text>
+                  </Flex>
+                </Box>
+
+                {/* Campaign Details */}
+                <Box borderWidth="1px" borderRadius="md" p={4} boxShadow="md">
+                  <Heading size="sm" mb={2} color="gray.700">
+                    Campaign Details
+                  </Heading>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">ID:</Text>
+                    <Text>{selectedVideo?.campaign_id || "N/A"}</Text>
+                  </Flex>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Name:</Text>
+                    <Text>{selectedVideo?.campaign_name || "N/A"}</Text>
+                  </Flex>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Brand:</Text>
+                    <Text>{selectedVideo?.brand || "N/A"}</Text>
+                  </Flex>
+                </Box>
+
+                {/* Creator & Payment */}
+                <Box borderWidth="1px" borderRadius="md" p={4} boxShadow="md">
+                  <Heading size="sm" mb={2} color="gray.700">
+                    Creator & Payment
+                  </Heading>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Creator Email:</Text>
+                    <Text>{selectedVideo?.crtrmail || "N/A"}</Text>
+                  </Flex>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Creator Price:</Text>
+                    <Text>{selectedVideo?.creator_price || "N/A"}</Text>
+                  </Flex>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Brand Price:</Text>
+                    <Text>{selectedVideo?.brand_price || "N/A"}</Text>
+                  </Flex>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Payment Status:</Text>
+                    <Text>{selectedVideo?.payment_status || "N/A"}</Text>
+                  </Flex>
+                  {/* ... Add other relevant creator and payment details here */}
+                </Box>
+
+                {/* Deliverables */}
+                <Box borderWidth="1px" borderRadius="md" p={4} boxShadow="md">
+                  <Heading size="sm" mb={2} color="gray.700">
+                    Deliverables
+                  </Heading>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Videos:</Text>
+                    <Text>{selectedVideo.deliverables.videos || 0}</Text>
+                  </Flex>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Text color="gray.600">Posts:</Text>
+                    <Text>{selectedVideo.deliverables.posts || 0}</Text>
+                  </Flex>
+                  {/* ... Add display for promotionalLink here */}
+                </Box>
+
+                {/* Mail Status */}
+                <Box borderWidth="1px" borderRadius="md" p={4} boxShadow="md">
+                  <Heading size="sm" mb={2} color="gray.700">
+                    Mail Status
+                  </Heading>
+                  <Flex justifyContent="space-between" alignItems="center">
+                    <Text fontWeight="medium">Already Sent:</Text>
+                    <Badge
+                      colorScheme={
+                        selectedVideo?.is_already_sent ? "orange" : "green"
+                      }
+                      variant={
+                        selectedVideo?.is_already_sent ? "solid" : "subtle"
+                      }
+                    >
+                      {selectedVideo?.is_already_sent ? "Yes" : "No"}
+                    </Badge>
+                  </Flex>
+
+                  {/* Conditionally show the alert */}
+                  {/* {selectedVideo?.is_already_sent && (
+                    <Alert status="warning" mt={2}>
+                      <AlertIcon />
+                      This email has already been sent. Sending again may result
+                      in duplicate notifications.
+                    </Alert>
+                  )} */}
+                </Box>
+              </VStack>
+            </Stack>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button onClick={onSummaryModalClose} variant="outline">
               Cancel
             </Button>
           </ModalFooter>
