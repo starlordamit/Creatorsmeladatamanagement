@@ -755,7 +755,7 @@ export default function VideoManagementPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                mb={2}
+                mb={2.1}
                 ml={{ base: 0, md: 2 }}
               >
                 Filter
