@@ -162,7 +162,6 @@ export default function VideoManagementPage() {
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
   const [videos, setVideos] = useState([]);
-  const [selectedVideo, setSelectedVideo] = useState(null);
   const [formData, setFormData] = useState({
     profile_url: "",
     video_url: "",
@@ -503,7 +502,7 @@ export default function VideoManagementPage() {
 
       // Show success toast
       toast({
-        title: "Email sent successfully!",
+        title: "Email sent successfully for Aproval!",
         status: "success",
         duration: 3000,
         isClosable: true,
@@ -591,10 +590,89 @@ export default function VideoManagementPage() {
     onMailModalOpen();
   };
 
+  const [selectedVideo, setSelectedVideo] = useState(null);
+
   const openSummaryModal = (video) => {
     setSelectedVideo(video);
-
     onSummaryModalOpen();
+  };
+
+  // Function to handle confirmation and API call
+  const handleConfirmSendMail = async () => {
+    try {
+      console.log("API Call Initiated");
+
+      // Ensure authToken is available
+      if (!authToken) {
+        toast({
+          title: "Authentication Error",
+          description: "Please log in to perform this action.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
+
+      const res = await fetch(
+        "https://winner51.online/api/campaigns/confirmsent",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            video_id: selectedVideo?.video_id,
+          }),
+        }
+      );
+
+      // Parse the response body
+      const data = await res.json();
+
+      if (res.ok) {
+        // Show success message
+        toast({
+          title: "Success",
+          description: data.message || "Mail Sent.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        onSummaryModalClose();
+      } else {
+        // Handle specific status codes if needed
+        if (res.status === 401) {
+          toast({
+            title: "Unauthorized",
+            description: "Your session has expired. Please log in again.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+        } else {
+          // Show error message from response
+          toast({
+            title: "Failed",
+            description:
+              data.message || `Error ${res.status}: ${res.statusText}`,
+            status: "warning",
+            duration: 5000,
+            isClosable: true,
+          });
+        }
+      }
+    } catch (error) {
+      // Show error message
+      toast({
+        title: "Error",
+        description: error.message || "An unexpected error occurred.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
@@ -656,6 +734,31 @@ export default function VideoManagementPage() {
                 ml={{ base: 0, md: 2 }}
               >
                 Export
+              </Button>
+            )}
+            {isMobile ? (
+              <Tooltip label="Filter" aria-label="Filter">
+                <IconButton
+                  icon={<FiFilter />}
+                  colorScheme="blue"
+                  onClick={() => handleDownload(colorTheme)}
+                  mr={{ base: 2, md: 2 }}
+                  mb={2}
+                  variant="outline"
+                  aria-label="Filter"
+                />
+              </Tooltip>
+            ) : (
+              <Button
+                leftIcon={<FiFilter />}
+                colorScheme="blue"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                mb={2}
+                ml={{ base: 0, md: 2 }}
+              >
+                Filter
               </Button>
             )}
             {isMobile ? (
@@ -1450,7 +1553,7 @@ export default function VideoManagementPage() {
         isCentered
       >
         <ModalOverlay />
-        <ModalContent bg={bgColor}>
+        <ModalContent>
           <ModalHeader>Confirm Send Mail</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -1462,7 +1565,13 @@ export default function VideoManagementPage() {
 
               <VStack align="stretch" spacing={4}>
                 {/* Video Details */}
-                <Box borderWidth="1px" borderRadius="md" p={4} boxShadow="md">
+                <Box
+                  borderWidth="1px"
+                  borderRadius="md"
+                  p={4}
+                  boxShadow="md"
+                  bg="gray.50"
+                >
                   <Heading size="sm" mb={2} color="gray.700">
                     Video Details
                   </Heading>
@@ -1487,8 +1596,7 @@ export default function VideoManagementPage() {
                       isExternal
                       color="teal.500"
                     >
-                      {/* {selectedVideo?.profile_url || "N/A"} */}
-                      Profile
+                      View Profile
                     </Link>
                   </Flex>
                   <Flex
@@ -1502,8 +1610,7 @@ export default function VideoManagementPage() {
                       isExternal
                       color="teal.500"
                     >
-                      Video
-                      {/* {selectedVideo?.video_url || "N/A"} */}
+                      Watch Video
                     </Link>
                   </Flex>
                   <Flex
@@ -1514,18 +1621,20 @@ export default function VideoManagementPage() {
                     <Text color="gray.600">Video Status:</Text>
                     <Text>{selectedVideo?.video_status || "N/A"}</Text>
                   </Flex>
-                  <Flex
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb={2}
-                  >
+                  <Flex justifyContent="space-between" alignItems="center">
                     <Text color="gray.600">Live Date:</Text>
                     <Text>{selectedVideo?.live_date || "N/A"}</Text>
                   </Flex>
                 </Box>
 
                 {/* Campaign Details */}
-                <Box borderWidth="1px" borderRadius="md" p={4} boxShadow="md">
+                <Box
+                  borderWidth="1px"
+                  borderRadius="md"
+                  p={4}
+                  boxShadow="md"
+                  bg="gray.50"
+                >
                   <Heading size="sm" mb={2} color="gray.700">
                     Campaign Details
                   </Heading>
@@ -1545,18 +1654,20 @@ export default function VideoManagementPage() {
                     <Text color="gray.600">Name:</Text>
                     <Text>{selectedVideo?.campaign_name || "N/A"}</Text>
                   </Flex>
-                  <Flex
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb={2}
-                  >
+                  <Flex justifyContent="space-between" alignItems="center">
                     <Text color="gray.600">Brand:</Text>
                     <Text>{selectedVideo?.brand || "N/A"}</Text>
                   </Flex>
                 </Box>
 
                 {/* Creator & Payment */}
-                <Box borderWidth="1px" borderRadius="md" p={4} boxShadow="md">
+                <Box
+                  borderWidth="1px"
+                  borderRadius="md"
+                  p={4}
+                  boxShadow="md"
+                  bg="gray.50"
+                >
                   <Heading size="sm" mb={2} color="gray.700">
                     Creator & Payment
                   </Heading>
@@ -1584,19 +1695,28 @@ export default function VideoManagementPage() {
                     <Text color="gray.600">Brand Price:</Text>
                     <Text>{selectedVideo?.brand_price || "N/A"}</Text>
                   </Flex>
-                  <Flex
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb={2}
-                  >
+                  <Flex justifyContent="space-between" alignItems="center">
                     <Text color="gray.600">Payment Status:</Text>
-                    <Text>{selectedVideo?.payment_status || "N/A"}</Text>
+                    <Badge
+                      colorScheme={
+                        selectedVideo?.payment_status === "Paid"
+                          ? "green"
+                          : "red"
+                      }
+                    >
+                      {selectedVideo?.payment_status || "N/A"}
+                    </Badge>
                   </Flex>
-                  {/* ... Add other relevant creator and payment details here */}
                 </Box>
 
                 {/* Deliverables */}
-                <Box borderWidth="1px" borderRadius="md" p={4} boxShadow="md">
+                <Box
+                  borderWidth="1px"
+                  borderRadius="md"
+                  p={4}
+                  boxShadow="md"
+                  bg="gray.50"
+                >
                   <Heading size="sm" mb={2} color="gray.700">
                     Deliverables
                   </Heading>
@@ -1608,7 +1728,7 @@ export default function VideoManagementPage() {
                     <Text color="gray.600">Videos:</Text>
                     <Text>
                       {selectedVideo
-                        ? selectedVideo.deliverables.videos || 0
+                        ? selectedVideo.deliverables?.videos || 0
                         : 0}
                     </Text>
                   </Flex>
@@ -1620,60 +1740,69 @@ export default function VideoManagementPage() {
                     <Text color="gray.600">Posts:</Text>
                     <Text>
                       {selectedVideo
-                        ? selectedVideo.deliverables.posts || 0
+                        ? selectedVideo.deliverables?.posts || 0
                         : 0}
                     </Text>
                   </Flex>
-                  <Flex
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb={2}
-                  >
-                    <Text color="gray.600">Links:</Text>
+                  <Flex justifyContent="space-between" alignItems="center">
+                    <Text color="gray.600">Promotional Links:</Text>
                     <Text>
                       {selectedVideo
-                        ? selectedVideo.deliverables.promotionalLink || 0
+                        ? selectedVideo.deliverables?.promotionalLink || 0
                         : 0}
                     </Text>
                   </Flex>
-                  {/* ... Add display for promotionalLink here */}
                 </Box>
 
                 {/* Mail Status */}
-                <Box borderWidth="1px" borderRadius="md" p={4} boxShadow="md">
+                <Box
+                  borderWidth="1px"
+                  borderRadius="md"
+                  p={4}
+                  boxShadow="md"
+                  bg="gray.50"
+                >
                   <Heading size="sm" mb={2} color="gray.700">
                     Mail Status
                   </Heading>
                   <Flex justifyContent="space-between" alignItems="center">
-                    <Text fontWeight="medium">Already Sent:</Text>
+                    <Text color="gray.600">Already Sent:</Text>
                     <Badge
                       colorScheme={
                         selectedVideo?.is_already_sent ? "orange" : "green"
-                      }
-                      variant={
-                        selectedVideo?.is_already_sent ? "solid" : "subtle"
                       }
                     >
                       {selectedVideo?.is_already_sent ? "Yes" : "No"}
                     </Badge>
                   </Flex>
-
                   {/* Conditionally show the alert */}
-                  {/* {selectedVideo?.is_already_sent && (
-                    <Alert status="warning" mt={2}>
+                  {selectedVideo?.is_already_sent && (
+                    <Alert status="warning" mt={3}>
                       <AlertIcon />
                       This email has already been sent. Sending again may result
                       in duplicate notifications.
                     </Alert>
-                  )} */}
+                  )}
                 </Box>
               </VStack>
             </Stack>
           </ModalBody>
 
           <ModalFooter>
-            <Button onClick={onSummaryModalClose} variant="outline">
+            <Button
+              onClick={onSummaryModalClose}
+              variant="outline"
+              mr={3}
+              colorScheme="gray"
+            >
               Cancel
+            </Button>
+            <Button
+              colorScheme="teal"
+              onClick={handleConfirmSendMail}
+              // isDisabled={selectedVideo?.is_already_sent}
+            >
+              Confirm & Send
             </Button>
           </ModalFooter>
         </ModalContent>

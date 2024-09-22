@@ -125,7 +125,7 @@ const SidebarWithHeader = ({ children }) => {
       {/* Drawer for Mobile */}
       <Drawer
         isOpen={isOpen}
-        placement="right" // Sidebar opens from the right on mobile
+        placement="left" // Sidebar opens from the right on mobile
         onClose={onClose}
       >
         <DrawerContent maxW="80vw" w="80vw" overflow="hidden">
