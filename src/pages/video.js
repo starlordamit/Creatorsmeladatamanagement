@@ -1800,7 +1800,7 @@ export default function VideoManagementPage() {
             <Button
               colorScheme="teal"
               onClick={handleConfirmSendMail}
-              // isDisabled={selectedVideo?.is_already_sent}
+              isDisabled={selectedVideo?.is_already_sent}
             >
               Confirm & Send
             </Button>
