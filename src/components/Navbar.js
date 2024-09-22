@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Box,
   Flex,
+  Image,
   IconButton,
   Avatar,
   HStack,
@@ -23,6 +24,7 @@ import {
   Heading,
   Tooltip,
   useColorModeValue,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import {
   FiMenu,
@@ -42,6 +44,7 @@ import {
 } from "react-icons/fi";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
+import { Block } from "@rsuite/icons";
 
 const SidebarWithHeader = ({ children }) => {
   // **Hook Calls at the Top Level**
@@ -423,6 +426,15 @@ const Header = ({
   const { colorMode, toggleColorMode } = useColorMode();
   const router = useRouter();
   const { logout } = useAuth(); // Destructure logout from AuthContext
+  const logoSrc = useColorModeValue(
+    "https://www.creatorsmela.com/images/logo-3.png", // Light mode logo
+    "https://www.creatorsmela.com/images/logo-white.png" // Dark mode logo
+  );
+  // const logoAlignment = useBreakpointValue({ base: 'center', md: 'flex-start' });
+  const logoAlignment = useBreakpointValue({
+    base: "center",
+    md: "flex-start",
+  });
 
   const handleLogout = () => {
     logout();
@@ -460,15 +472,25 @@ const Header = ({
             mr={2}
           />
         )}
-        {/* Brand Name */}
-        <Heading
-          fontSize={{ base: "lg", md: "xl" }}
-          bgGradient="linear(to-r, teal.400, green.400)"
-          bgClip="text"
-          fontWeight="extrabold"
-        >
-          CreatorsMela
-        </Heading>
+        {/* Brand Logo and Name */}
+        <Flex alignItems="center" flexDirection={{ base: "column", md: "row" }}>
+          <Image
+            src={logoSrc}
+            alt="CreatorsMela"
+            maxHeight={37}
+            mr={{ base: 0, md: 2 }}
+          />
+          {/* <Heading
+            as="h1"
+            fontSize={{ base: "lg", md: "xl" }}
+            bgGradient="linear(to-r, teal.400, green.400)"
+            bgClip="text"
+            fontWeight="extrabold"
+            mt={{ base: 2, md: 0 }}
+          >
+            CreatorsMela
+          </Heading> */}
+        </Flex>
       </Flex>
       <HStack spacing={4}>
         {/* Color Mode Toggle Button */}
