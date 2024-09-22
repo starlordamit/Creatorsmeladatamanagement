@@ -741,7 +741,7 @@ export default function VideoManagementPage() {
                 <IconButton
                   icon={<FiFilter />}
                   colorScheme="blue"
-                  onClick={() => handleDownload(colorTheme)}
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
                   mr={{ base: 2, md: 2 }}
                   mb={2}
                   variant="outline"
