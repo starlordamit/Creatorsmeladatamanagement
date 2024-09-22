@@ -1062,11 +1062,13 @@ export default function VideoManagementPage() {
                         aria-label="Send Mail"
                         mr={2}
                       />
+
                       <IconButton
                         icon={<FiTrash2 />}
                         size="sm"
+                        ml={3}
                         colorScheme="red"
-                        onDoubleClick={() => handleDelete(video.video_id)}
+                        onClick={() => handleDelete(video.video_id)}
                         // onClick={}
                         aria-label="Delete"
                       />
