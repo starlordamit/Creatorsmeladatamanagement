@@ -1057,7 +1057,7 @@ export default function VideoManagementPage() {
                         // isDisabled={video.mail_aproval}
                         icon={<FiEye />}
                         size="sm"
-                        colorScheme="green"
+                        colorScheme={video.is_already_sent ? "green" : "red"}
                         onClick={() => openSummaryModal(video)}
                         aria-label="Send Mail"
                         mr={2}
