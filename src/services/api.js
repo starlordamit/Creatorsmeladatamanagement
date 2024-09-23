@@ -1,5 +1,7 @@
 // src/services/api.js
 import axios from "axios";
+import { useRouter } from "next/router";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const API_URL = "https://winner51.online/api"; // Change this to your backend URL
 // const API_URL = "localhost:3006/api"
@@ -66,6 +68,8 @@ export const changePassword = async (token, currentPassword, newPassword) => {
 // Fetch user data by ID
 
 export const fetchUserData = async (userId, token) => {
+  const router = useRouter();
+  const [authToken, setAuthToken] = useState(null); // State to store token
   const response = await axios.get(`${API_URL}/users/user/${userId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -75,6 +79,12 @@ export const fetchUserProfile = async (token) => {
   const response = await axios.get(`${API_URL}/users/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  if (response.status == 400) {
+    setAuthToken(null);
+    localStorage.removeItem("authToken");
+    // setUser(null); // Reset user on logout
+    router.push("/auth/Login"); // Redirect to login after logout
+  }
   return response.data;
 };
 
