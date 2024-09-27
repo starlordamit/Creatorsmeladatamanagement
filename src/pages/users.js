@@ -26,16 +26,16 @@ import {
   useColorModeValue,
   useMediaQuery,
   SimpleGrid,
+  Spinner,
+  Text,
 } from "@chakra-ui/react";
 import { FiEdit, FiTrash2, FiFilter } from "react-icons/fi"; // Added filter icon
-import SidebarWithHeader from "@/components/Navbar";
 import {
   fetchAllUsers,
   updateUser,
   terminateUser,
   assignRole,
 } from "../services/api";
-import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
 
 export default function UserManagementPage() {
@@ -58,12 +58,13 @@ export default function UserManagementPage() {
   const [isEdit, setIsEdit] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false); // Toggle for filter box
   const { authToken } = useAuth();
-  const router = useRouter();
   const toast = useToast();
+  const [isLoading, setIsLoading] = useState(false); // Loader state
   const [isMobile] = useMediaQuery("(max-width: 768px)");
   const cardBg = useColorModeValue("white", "gray.700");
   const tableHeaderBg = useColorModeValue("gray.100", "gray.900");
 
+  // Fetch user data on component load
   useEffect(() => {
     if (authToken) {
       loadUsers(authToken);
@@ -71,12 +72,19 @@ export default function UserManagementPage() {
   }, [authToken]);
 
   const loadUsers = async (token) => {
+    setIsLoading(true); // Show loader
     try {
       const data = await fetchAllUsers(token);
       setUsers(data);
       setFilteredUsers(data);
     } catch (err) {
-      console.error("Failed to fetch users:", err);
+      toast({
+        title: "Failed to fetch users.",
+        status: "error",
+        duration: 3000,
+      });
+    } finally {
+      setIsLoading(false); // Hide loader
     }
   };
 
@@ -108,9 +116,7 @@ export default function UserManagementPage() {
     const { name, email, role, status } = filterValues;
     const filtered = users.filter((user) => {
       const matchesName = name
-        ? user.name
-          ? user.name.toLowerCase().includes(name.toLowerCase())
-          : true
+        ? user.name?.toLowerCase().includes(name.toLowerCase())
         : true;
       const matchesEmail = email
         ? user.email.toLowerCase().includes(email.toLowerCase())
@@ -137,7 +143,6 @@ export default function UserManagementPage() {
           status: "success",
           duration: 3000,
         });
-
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
             user.user_id === selectedUser.user_id
@@ -154,8 +159,11 @@ export default function UserManagementPage() {
       }
       onClose();
     } catch (err) {
-      console.error("Failed to save user:", err);
-      toast({ title: "Failed to save user.", status: "error", duration: 3000 });
+      toast({
+        title: "Failed to save user.",
+        status: "error",
+        duration: 3000,
+      });
     }
   };
 
@@ -168,7 +176,6 @@ export default function UserManagementPage() {
         status: "success",
         duration: 3000,
       });
-
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.user_id === userId
@@ -177,9 +184,8 @@ export default function UserManagementPage() {
         )
       );
     } catch (err) {
-      console.error("Failed to terminate user:", err);
       toast({
-        title: "Failed to terminate user.",
+        title: "Failed to update user status.",
         status: "error",
         duration: 3000,
       });
@@ -195,14 +201,12 @@ export default function UserManagementPage() {
         status: "success",
         duration: 3000,
       });
-
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.user_id === userId ? { ...user, role: newRole } : user
         )
       );
     } catch (err) {
-      console.error("Failed to assign role:", err);
       toast({
         title: "Failed to assign role.",
         status: "error",
@@ -218,33 +222,33 @@ export default function UserManagementPage() {
           leftIcon={<FiFilter />}
           onClick={() => setIsFilterOpen(!isFilterOpen)}
           colorScheme="teal"
-          variant="outline"
           size={"sm"}
         >
           {isFilterOpen ? "Hide Filters" : "Show Filters"}
         </Button>
       </Flex>
 
+      {/* Filter section */}
       <Collapse in={isFilterOpen} animateOpacity>
         <Box p={4} bg={cardBg} borderRadius="md" shadow="md" mb={4}>
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4}>
             <Input
               placeholder="Filter by Name"
-              size={"sm"}
+              size="sm"
               name="name"
               value={filters.name}
               onChange={handleFilterChange}
             />
             <Input
-              size={"sm"}
               placeholder="Filter by Email"
+              size="sm"
               name="email"
               value={filters.email}
               onChange={handleFilterChange}
             />
             <Select
-              size={"sm"}
               placeholder="Filter by Role"
+              size="sm"
               name="role"
               value={filters.role}
               onChange={handleFilterChange}
@@ -255,8 +259,8 @@ export default function UserManagementPage() {
               <option value="user">User</option>
             </Select>
             <Select
-              size={"sm"}
               placeholder="Filter by Status"
+              size="sm"
               name="status"
               value={filters.status}
               onChange={handleFilterChange}
@@ -268,80 +272,86 @@ export default function UserManagementPage() {
         </Box>
       </Collapse>
 
-      {/* Users Table */}
-      <Box
-        borderWidth="1px"
-        borderRadius="md"
-        overflow="auto"
-        bg={cardBg}
-        shadow="sm"
-        maxHeight="74vh"
-      >
-        <Table variant="simple" size="sm">
-          <Thead bg={tableHeaderBg}>
-            <Tr>
-              {/* <Th>User ID</Th> */}
-              <Th>Name</Th>
-              <Th>Email</Th>
-              <Th>Phone</Th>
-              <Th>Role</Th>
-              <Th>Status</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {filteredUsers.map((user) => (
-              <Tr key={user.user_id}>
-                {/* <Td>{user.user_id}</Td> */}
-                <Td>{user.name}</Td>
-                <Td>{user.email}</Td>
-                <Td>{user.phone}</Td>
-                <Td>
-                  <Select
-                    value={user.role}
-                    onChange={(e) =>
-                      handleRoleAssignment(user.user_id, e.target.value)
-                    }
-                    size="sm"
-                  >
-                    <option value="admin">Admin</option>
-                    <option value="finance_manager">Finance Manager</option>
-                    <option value="operation_manager">Operation Manager</option>
-                    <option value="user">User</option>
-                  </Select>
-                </Td>
-                <Td>
-                  <Badge colorScheme={user.is_suspended ? "red" : "green"}>
-                    {user.is_suspended ? "Terminated" : "Active"}
-                  </Badge>
-                </Td>
-                <Td>
-                  <Flex>
-                    <IconButton
-                      icon={<FiEdit />}
-                      size="sm"
-                      colorScheme="teal"
-                      onClick={() => openModal(user)}
-                      aria-label="Edit"
-                      margin={1}
-                    />
-                    <IconButton
-                      icon={<FiTrash2 />}
-                      size="sm"
-                      margin={1}
-                      colorScheme={user.is_suspended ? "green" : "red"}
-                      onClick={() =>
-                        handleTerminate(user.user_id, !user.is_suspended)
-                      }
-                      aria-label={user.is_suspended ? "Activate" : "Terminate"}
-                    />
-                  </Flex>
-                </Td>
+      {/* Loader */}
+      {isLoading ? (
+        <Flex justify="center" align="center" minHeight="50vh">
+          <Spinner size="xl" />
+        </Flex>
+      ) : (
+        <Box
+          borderWidth="1px"
+          borderRadius="md"
+          overflow="auto"
+          bg={cardBg}
+          shadow="sm"
+          maxHeight="74vh"
+        >
+          <Table variant="simple" size="sm">
+            <Thead bg={tableHeaderBg}>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Email</Th>
+                <Th>Phone</Th>
+                <Th>Role</Th>
+                <Th>Status</Th>
+                <Th>Actions</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </Box>
+            </Thead>
+            <Tbody>
+              {filteredUsers.map((user) => (
+                <Tr key={user.user_id}>
+                  <Td>{user.name}</Td>
+                  <Td>{user.email}</Td>
+                  <Td>{user.phone}</Td>
+                  <Td>
+                    <Select
+                      value={user.role}
+                      onChange={(e) =>
+                        handleRoleAssignment(user.user_id, e.target.value)
+                      }
+                      size="sm"
+                    >
+                      <option value="admin">Admin</option>
+                      <option value="finance_manager">Finance Manager</option>
+                      <option value="operation_manager">
+                        Operation Manager
+                      </option>
+                      <option value="user">User</option>
+                    </Select>
+                  </Td>
+                  <Td>
+                    <Badge colorScheme={user.is_suspended ? "red" : "green"}>
+                      {user.is_suspended ? "Terminated" : "Active"}
+                    </Badge>
+                  </Td>
+                  <Td>
+                    <Flex>
+                      <IconButton
+                        icon={<FiEdit />}
+                        size="sm"
+                        colorScheme="teal"
+                        onClick={() => openModal(user)}
+                        aria-label="Edit"
+                      />
+                      <IconButton
+                        icon={<FiTrash2 />}
+                        size="sm"
+                        colorScheme={user.is_suspended ? "green" : "red"}
+                        onClick={() =>
+                          handleTerminate(user.user_id, !user.is_suspended)
+                        }
+                        aria-label={
+                          user.is_suspended ? "Activate" : "Terminate"
+                        }
+                      />
+                    </Flex>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      )}
 
       {/* Modal for Editing User */}
       <Modal isOpen={isOpen} onClose={onClose} size={isMobile ? "xs" : "md"}>

@@ -49,6 +49,7 @@ import {
   VStack,
   Heading,
 } from "@chakra-ui/react";
+import Loader from "./Loader";
 import {
   FiEdit,
   FiTrash2,
@@ -161,6 +162,8 @@ export default function VideoManagementPage() {
   const tableHeaderBg = useColorModeValue("gray.100", "gray.900");
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
+  const [isLoading, setIsLoading] = useState(false); // Loader state
+
   const [videos, setVideos] = useState([]);
   const [formData, setFormData] = useState({
     profile_url: "",
@@ -234,9 +237,12 @@ export default function VideoManagementPage() {
   const loadVideos = useCallback(
     async (token) => {
       try {
+        setIsLoading(true); // Show loader
         const data = await fetchAllVideos(token);
         setVideos(data);
+        setIsLoading(false);
       } catch (err) {
+        setIsLoading(false); // Show loader
         toast({
           title: "Error fetching videos",
           status: "error",
@@ -260,6 +266,8 @@ export default function VideoManagementPage() {
           duration: 3000,
           isClosable: true,
         });
+      } finally {
+        setIsLoading(false); // Hide loader
       }
     },
     [toast]
@@ -392,6 +400,7 @@ export default function VideoManagementPage() {
   const handleDelete = async (video_id) => {
     if (!authToken) return;
     try {
+      setIsLoading(true);
       await deleteVideo(video_id, authToken);
       toast({
         title: "Video deleted successfully!",
@@ -402,7 +411,9 @@ export default function VideoManagementPage() {
       setVideos((prevVideos) =>
         prevVideos.filter((video) => video.video_id !== video_id)
       );
+      setIsLoading(false);
     } catch (err) {
+      setIsLoading(false);
       toast({
         title: "Error deleting video",
         status: "error",
@@ -674,7 +685,9 @@ export default function VideoManagementPage() {
       });
     }
   };
-
+  if (isLoading) {
+    return <Loader />; // Show the loader while fetching data
+  }
   return (
     <>
       {/* Header with Add Video and Actions */}
@@ -976,6 +989,7 @@ export default function VideoManagementPage() {
                 <Th width="80px">Actions</Th>
               </Tr>
             </Thead>
+
             <Tbody>
               {filteredVideos.map((video) => (
                 <Tr key={video.video_id}>
@@ -1010,10 +1024,10 @@ export default function VideoManagementPage() {
                             <Badge
                               colorScheme={
                                 video[col.key] === "live" ||
-                                video[col.key] === "paid"
+                                video[col.key] === "done"
                                   ? "green"
                                   : video[col.key] === "progress" ||
-                                      video[col.key] === "pending"
+                                      video[col.key] === "request"
                                     ? "yellow"
                                     : "red"
                               }
@@ -1790,7 +1804,7 @@ export default function VideoManagementPage() {
             </Stack>
           </ModalBody>
 
-          <ModalFooter>
+          {/* <ModalFooter>
             <Button
               onClick={onSummaryModalClose}
               variant="outline"
@@ -1806,7 +1820,7 @@ export default function VideoManagementPage() {
             >
               Confirm & Send
             </Button>
-          </ModalFooter>
+          </ModalFooter> */}
         </ModalContent>
       </Modal>
     </>

@@ -24,6 +24,8 @@ import {
   useColorModeValue,
   Flex,
   Collapse,
+  Spinner,
+  Center,
 } from "@chakra-ui/react";
 import {
   fetchCampaigns,
@@ -33,7 +35,6 @@ import {
 } from "../services/api";
 import { useRouter } from "next/router";
 import { FiTrash2, FiEdit, FiFilter } from "react-icons/fi";
-import SidebarWithHeader from "../components/Navbar";
 
 export default function CampaignPage() {
   const [campaigns, setCampaigns] = useState([]);
@@ -47,12 +48,13 @@ export default function CampaignPage() {
     brand: "",
     status: "",
   });
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [filters, setFilters] = useState({ name: "", brand: "", status: "" });
   const [isEdit, setIsEdit] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState({ name: "", brand: "", status: "" });
-  const { push } = useRouter();
+  const [isLoading, setIsLoading] = useState(false); // Loader state
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const { push } = useRouter();
   const modalSize = useBreakpointValue({ base: "full", md: "lg" });
   const cardBg = useColorModeValue("white", "gray.700");
   const tableHeaderBg = useColorModeValue("gray.100", "gray.900");
@@ -67,11 +69,14 @@ export default function CampaignPage() {
   }, [push]);
 
   const loadCampaigns = async (token) => {
+    setIsLoading(true); // Show loader while fetching data
     try {
       const data = await fetchCampaigns(token);
       setCampaigns(data);
     } catch (err) {
       console.error("Failed to fetch campaigns:", err);
+    } finally {
+      setIsLoading(false); // Hide loader after fetching
     }
   };
 
@@ -104,6 +109,7 @@ export default function CampaignPage() {
   const handleSave = async () => {
     const token = localStorage.getItem("authToken");
     if (!token) return;
+
     try {
       if (isEdit) {
         await updateCampaign(selectedCampaign.campaign_id, formData, token);
@@ -233,63 +239,71 @@ export default function CampaignPage() {
         </Box>
       </Collapse>
 
-      <Box overflowX="auto">
-        <Box
-          borderWidth="1px"
-          borderRadius="md"
-          overflow="auto"
-          bg={cardBg}
-          shadow="sm"
-          maxHeight={{ base: "400px", md: "600px" }}
-        >
-          <Table variant="simple" size="sm" minWidth="100%">
-            <Thead bg={tableHeaderBg}>
-              <Tr>
-                <Th>Campaign Name</Th>
-                <Th>Description</Th>
-                <Th>Start Date</Th>
-                <Th>End Date</Th>
-                <Th>Budget</Th>
-                <Th>Brand</Th>
-                <Th>Status</Th>
-                <Th>Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {filteredCampaigns.map((campaign) => (
-                <Tr key={campaign.campaign_id}>
-                  <Td>{campaign.name}</Td>
-                  <Td>{campaign.description}</Td>
-                  <Td>{new Date(campaign.start_date).toLocaleDateString()}</Td>
-                  <Td>{new Date(campaign.end_date).toLocaleDateString()}</Td>
-                  <Td>{campaign.budget}</Td>
-                  <Td>{campaign.brand}</Td>
-                  <Td>{campaign.status}</Td>
-                  <Td>
-                    <Flex>
-                      <IconButton
-                        icon={<FiEdit />}
-                        size="sm"
-                        colorScheme="teal"
-                        onClick={() => openModal(campaign)}
-                        aria-label="Edit"
-                        mr={2}
-                      />
-                      <IconButton
-                        icon={<FiTrash2 />}
-                        size="sm"
-                        colorScheme="red"
-                        onClick={() => handleDelete(campaign.campaign_id)}
-                        aria-label="Delete"
-                      />
-                    </Flex>
-                  </Td>
+      {isLoading ? (
+        <Center minHeight="200px">
+          <Spinner size="xl" />
+        </Center>
+      ) : (
+        <Box overflowX="auto">
+          <Box
+            borderWidth="1px"
+            borderRadius="md"
+            overflow="auto"
+            bg={cardBg}
+            shadow="sm"
+            maxHeight={{ base: "400px", md: "600px" }}
+          >
+            <Table variant="simple" size="sm" minWidth="100%">
+              <Thead bg={tableHeaderBg}>
+                <Tr>
+                  <Th>Campaign Name</Th>
+                  <Th>Description</Th>
+                  <Th>Start Date</Th>
+                  <Th>End Date</Th>
+                  <Th>Budget</Th>
+                  <Th>Brand</Th>
+                  <Th>Status</Th>
+                  <Th>Actions</Th>
                 </Tr>
-              ))}
-            </Tbody>
-          </Table>
+              </Thead>
+              <Tbody>
+                {filteredCampaigns.map((campaign) => (
+                  <Tr key={campaign.campaign_id}>
+                    <Td>{campaign.name}</Td>
+                    <Td>{campaign.description}</Td>
+                    <Td>
+                      {new Date(campaign.start_date).toLocaleDateString()}
+                    </Td>
+                    <Td>{new Date(campaign.end_date).toLocaleDateString()}</Td>
+                    <Td>{campaign.budget}</Td>
+                    <Td>{campaign.brand}</Td>
+                    <Td>{campaign.status}</Td>
+                    <Td>
+                      <Flex>
+                        <IconButton
+                          icon={<FiEdit />}
+                          size="sm"
+                          colorScheme="teal"
+                          onClick={() => openModal(campaign)}
+                          aria-label="Edit"
+                          mr={2}
+                        />
+                        <IconButton
+                          icon={<FiTrash2 />}
+                          size="sm"
+                          colorScheme="red"
+                          onClick={() => handleDelete(campaign.campaign_id)}
+                          aria-label="Delete"
+                        />
+                      </Flex>
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </Box>
         </Box>
-      </Box>
+      )}
 
       <Modal isOpen={isOpen} onClose={onClose} size={modalSize}>
         <ModalOverlay />

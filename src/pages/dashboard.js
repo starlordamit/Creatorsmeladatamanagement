@@ -227,7 +227,7 @@ export default function Dashboard() {
               // maxW="7xl"
             >
               <Heading size="md" mb={4} color={textColor}>
-                Last 30 Days Video Report
+                Last 7 Days Video Report
               </Heading>
               {dateWiseData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="90%">

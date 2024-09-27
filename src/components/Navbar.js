@@ -41,6 +41,7 @@ import {
   FiTrendingUp,
   FiSpeaker,
   FiLogOut,
+  FiMail,
 } from "react-icons/fi";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
@@ -408,6 +409,13 @@ const navigationItems = [
     icon: FiTrendingUp,
     roles: ["admin", "finance_manager", "operation_manager", "user"],
     path: "/creators",
+  },
+  {
+    label: "Mails",
+    eventKey: "mail",
+    icon: FiMail,
+    roles: ["admin", "finance_manager"],
+    path: "/mail",
   },
 ];
 
