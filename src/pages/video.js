@@ -828,7 +828,7 @@ export default function VideoManagementPage() {
                 name="profile_url"
                 value={filters.profile_url}
                 onChange={handleFilterChange}
-                bg={useColorModeValue("gray.50", "gray.600")}
+                bg={cardBg}
               />
             </InputGroup>
             <InputGroup>
@@ -840,7 +840,7 @@ export default function VideoManagementPage() {
                 name="video_url"
                 value={filters.video_url}
                 onChange={handleFilterChange}
-                bg={useColorModeValue("gray.50", "gray.600")}
+                bg={cardBg}
               />
             </InputGroup>
             <Select
@@ -848,7 +848,7 @@ export default function VideoManagementPage() {
               name="campaign"
               value={filters.campaign}
               onChange={handleFilterChange}
-              bg={useColorModeValue("gray.50", "gray.600")}
+              bg={cardBg}
             >
               {campaigns.map((campaign) => (
                 <option key={campaign.campaign_id} value={campaign.name}>
@@ -865,7 +865,7 @@ export default function VideoManagementPage() {
                 name="brand"
                 value={filters.brand}
                 onChange={handleFilterChange}
-                bg={useColorModeValue("gray.50", "gray.600")}
+                bg={cardBg}
               />
             </InputGroup>
             <Select
@@ -873,7 +873,7 @@ export default function VideoManagementPage() {
               name="video_status"
               value={filters.video_status}
               onChange={handleFilterChange}
-              bg={useColorModeValue("gray.50", "gray.600")}
+              bg={cardBg}
             >
               <option value="live">Live</option>
               <option value="progress">In Progress</option>
@@ -884,7 +884,7 @@ export default function VideoManagementPage() {
               name="payment_status"
               value={filters.payment_status}
               onChange={handleFilterChange}
-              bg={useColorModeValue("gray.50", "gray.600")}
+              bg={cardBg}
             >
               <option value="paid">Paid</option>
               <option value="pending">Pending</option>
@@ -907,7 +907,7 @@ export default function VideoManagementPage() {
                     leftIcon={<FiSearch />}
                     width="100%"
                     textAlign="left"
-                    bg={useColorModeValue("gray.50", "gray.600")}
+                    bg={cardBg}
                   >
                     {filters.dateRange[0] && filters.dateRange[1]
                       ? `${filters.dateRange[0].toLocaleDateString()} - ${filters.dateRange[1].toLocaleDateString()}`
@@ -942,11 +942,7 @@ export default function VideoManagementPage() {
           maxHeight="74vh"
           border={`1px solid ${borderColor}`}
         >
-          <Table
-            variant="simple"
-            size="sm"
-            colorScheme={useColorModeValue("blackAlpha", "whiteAlpha")}
-          >
+          <Table variant="simple" size="sm" colorScheme={tableHeaderBg}>
             <Thead bg={tableHeaderBg}>
               <Tr>
                 <Th width="40px">
@@ -1111,7 +1107,7 @@ export default function VideoManagementPage() {
                   name="profile_url"
                   value={formData.profile_url}
                   onChange={handleInputChange}
-                  bg={useColorModeValue("gray.50", "gray.600")}
+                  bg={cardBg}
                 />
               </FormControl>
               <FormControl id="video_url" isRequired>
@@ -1121,7 +1117,7 @@ export default function VideoManagementPage() {
                   name="video_url"
                   value={formData.video_url}
                   onChange={handleInputChange}
-                  bg={useColorModeValue("gray.50", "gray.600")}
+                  bg={cardBg}
                 />
               </FormControl>
               <FormControl id="campaign_id" isRequired>
@@ -1142,7 +1138,7 @@ export default function VideoManagementPage() {
                       brand: selectedCampaign ? selectedCampaign.brand : "",
                     }));
                   }}
-                  bg={useColorModeValue("gray.50", "gray.600")}
+                  bg={bgColor}
                 >
                   {campaigns.map((campaign) => (
                     <option
@@ -1161,7 +1157,7 @@ export default function VideoManagementPage() {
                   name="brand"
                   disabled
                   value={formData.brand}
-                  bg={useColorModeValue("gray.100", "gray.500")}
+                  bg={cardBg}
                 />
               </FormControl>
               <FormControl id="video_status" isRequired hidden={!isEdit}>
@@ -1172,7 +1168,7 @@ export default function VideoManagementPage() {
                   hidden={!isEdit}
                   value={formData.video_status}
                   onChange={handleInputChange}
-                  bg={useColorModeValue("gray.50", "gray.600")}
+                  bg={cardBg}
                 >
                   <option value="live">Live</option>
                   <option value="progress">In Progress</option>
@@ -1195,7 +1191,7 @@ export default function VideoManagementPage() {
                       leftIcon={<FiSearch />}
                       width="100%"
                       textAlign="left"
-                      bg={useColorModeValue("gray.50", "gray.600")}
+                      bg={cardBg}
                     >
                       {formData.live_date
                         ? new Date(formData.live_date).toLocaleDateString()
@@ -1212,7 +1208,7 @@ export default function VideoManagementPage() {
                   type="number"
                   value={formData.brand_price}
                   onChange={handleInputChange}
-                  bg={useColorModeValue("gray.50", "gray.600")}
+                  bg={cardBg}
                 />
               </FormControl>
               <FormControl id="creator_price" isRequired>
@@ -1223,7 +1219,7 @@ export default function VideoManagementPage() {
                   type="number"
                   value={formData.creator_price}
                   onChange={handleInputChange}
-                  bg={useColorModeValue("gray.50", "gray.600")}
+                  bg={cardBg}
                 />
               </FormControl>
               <FormControl id="crtrmail" isRequired>
@@ -1234,7 +1230,7 @@ export default function VideoManagementPage() {
                   type="email"
                   value={formData.crtrmail}
                   onChange={handleInputChange}
-                  bg={useColorModeValue("gray.50", "gray.600")}
+                  bg={cardBg}
                 />
               </FormControl>
               <FormControl id="platform" isRequired hidden={isEdit}>
@@ -1245,7 +1241,7 @@ export default function VideoManagementPage() {
                   hidden={isEdit}
                   value={formData.platform}
                   onChange={handleInputChange}
-                  bg={useColorModeValue("gray.50", "gray.600")}
+                  bg={cardBg}
                 >
                   <option value="youtube">Youtube</option>
                   <option value="instagram">Instagram</option>
@@ -1411,7 +1407,7 @@ export default function VideoManagementPage() {
                           },
                         }))
                       }
-                      bg={useColorModeValue("gray.50", "gray.600")}
+                      bg={cardBg}
                     />
                   </FormControl>
                   <FormControl id="posts" isRequired>
@@ -1437,7 +1433,7 @@ export default function VideoManagementPage() {
                           },
                         }))
                       }
-                      bg={useColorModeValue("gray.50", "gray.600")}
+                      bg={cardBg}
                     />
                   </FormControl>
 
