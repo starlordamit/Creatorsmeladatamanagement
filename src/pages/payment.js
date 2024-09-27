@@ -321,7 +321,7 @@ export default function PaymentsPage() {
                   <Th>Update Payment Status</Th>
                 </Tr>
               </Thead>
-              <Tbody bg={useColorModeValue("white", "gray.700")}>
+              <Tbody bg={bgColor}>
                 {filteredVideos.map((video) => (
                   <Tr key={video.video_id}>
                     <Td>

@@ -68,13 +68,14 @@ export const changePassword = async (token, currentPassword, newPassword) => {
 // Fetch user data by ID
 
 export const fetchUserData = async (userId, token) => {
-  const router = useRouter();
-  const [authToken, setAuthToken] = useState(null); // State to store token
+  // const router = useRouter();
+  // const [authToken, setAuthToken] = useState(null); // State to store token
   const response = await axios.get(`${API_URL}/users/user/${userId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
 };
+
 export const fetchUserProfile = async (token) => {
   const response = await axios.get(`${API_URL}/users/me`, {
     headers: { Authorization: `Bearer ${token}` },
