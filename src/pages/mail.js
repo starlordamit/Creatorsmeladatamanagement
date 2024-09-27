@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -37,36 +37,31 @@ export default function PaymentsPage() {
   const [selectedRows, setSelectedRows] = useState([]);
   const toast = useToast();
 
-  // Moved useColorModeValue calls to the top
   const bgColor = useColorModeValue("white", "gray.800");
   const tableHeaderBg = useColorModeValue("gray.100", "gray.900");
   const borderColor = useColorModeValue("gray.200", "gray.700");
-
-  // Memoized loadVideos function to prevent unnecessary re-renders
-  const loadVideos = useCallback(
-    async (token) => {
-      setIsLoading(true);
-      try {
-        const data = await fetchAllVideos(token);
-        setVideos(data);
-      } catch (err) {
-        toast({
-          title: "Error fetching videos",
-          status: "error",
-          duration: 3000,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [toast]
-  );
 
   useEffect(() => {
     if (authToken) {
       loadVideos(authToken);
     }
-  }, [authToken, loadVideos]);
+  }, [authToken]);
+
+  const loadVideos = async (token) => {
+    setIsLoading(true);
+    try {
+      const data = await fetchAllVideos(token);
+      setVideos(data);
+    } catch (err) {
+      toast({
+        title: "Error fetching videos",
+        status: "error",
+        duration: 3000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Handle Send Mail Button
   const handleSendMail = async (videoId) => {
@@ -140,6 +135,8 @@ export default function PaymentsPage() {
   // Render Deliverables as Chips
   const renderDeliverables = (deliverables) => {
     const colorSchemes = ["purple", "blue", "green", "yellow", "pink"];
+
+    // Map numbers to deliverable labels
     const deliverableLabels = {
       1: "Description",
       2: "About Section",
@@ -152,11 +149,12 @@ export default function PaymentsPage() {
       return deliverables.map((deliverable, index) => (
         <Badge
           key={index}
-          colorScheme={colorSchemes[deliverable]}
+          colorScheme={colorSchemes[deliverable]} // Cycle through colors
           mx={1}
           mb={1}
         >
-          {deliverableLabels[deliverable] || "Unknown Deliverable"}
+          {deliverableLabels[deliverable] || "Unknown Deliverable"}{" "}
+          {/* Map number to label */}
         </Badge>
       ));
     }
@@ -204,6 +202,7 @@ export default function PaymentsPage() {
           gap={2}
           mb={2}
         >
+          {/* Mail Status Filter Buttons */}
           <ButtonGroup
             size="sm"
             variant="outline"
@@ -238,6 +237,7 @@ export default function PaymentsPage() {
             </Button>
           </ButtonGroup>
 
+          {/* Uploader Filter */}
           <Input
             placeholder="Search by Uploader"
             value={uploaderFilter}
@@ -249,6 +249,7 @@ export default function PaymentsPage() {
         </Flex>
       </Box>
 
+      {/* Loader while fetching videos */}
       {isLoading ? (
         <Flex justify="center" align="center" height="50vh">
           <Spinner size="xl" />
@@ -275,11 +276,12 @@ export default function PaymentsPage() {
                   <Th>Campaign Name</Th>
                   <Th>Deliverables</Th>
                   <Th>-</Th>
+
                   <Th>Approval Status</Th>
                   <Th>Mail</Th>
                 </Tr>
               </Thead>
-              <Tbody bg={useColorModeValue("white", "gray.700")}>
+              <Tbody bg={bgColor}>
                 {filteredVideos.map((video) => (
                   <Tr key={video.video_id}>
                     <Td>{video.video_id}</Td>
@@ -290,8 +292,10 @@ export default function PaymentsPage() {
                     <Td>{video.campaign_name}</Td>
                     <Td>
                       {renderDeliverables(video.deliverables.promotionalLink)}
-                    </Td>
-                    <Td>{getPlatformIcon(video.platform)}</Td>
+                    </Td>{" "}
+                    {/* Render deliverables as chips */}
+                    <Td>{getPlatformIcon(video.platform)}</Td>{" "}
+                    {/* Platform Icon */}
                     <Td>
                       <Badge colorScheme={video.mail_aproval ? "green" : "red"}>
                         {video.mail_aproval ? "Approved" : "Not Approved"}
