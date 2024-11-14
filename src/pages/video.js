@@ -172,7 +172,7 @@ export default function VideoManagementPage() {
     brand: "",
     video_status: "",
     live_date: "",
-    brand_price: "",
+    // brand_price: "",
     // commission: "",
     creator_price: "",
     payment_status: "",
@@ -201,7 +201,7 @@ export default function VideoManagementPage() {
     video_status: true,
     live_date: true,
     payment_status: true,
-    brand_price: true,
+    // brand_price: true,
     // commission: true,
     creator_price: true,
   });
@@ -214,7 +214,7 @@ export default function VideoManagementPage() {
     video_status: true,
     live_date: true,
     payment_status: true,
-    brand_price: true,
+    // brand_price: true,
     // commission: true,
     creator_price: true,
   });
@@ -229,7 +229,7 @@ export default function VideoManagementPage() {
     { label: "Video Status", key: "video_status" },
     { label: "Live Date", key: "live_date" },
     { label: "Payment Status", key: "payment_status" },
-    { label: "Promotion Price", key: "brand_price" },
+    // { label: "Promotion Price", key: "brand_price" },
     // { label: "Commission", key: "commission" },
     { label: "Creator Price", key: "creator_price" },
   ];
@@ -560,7 +560,7 @@ export default function VideoManagementPage() {
         brand: video.brand || "",
         video_status: video.video_status || "",
         live_date: video.live_date ? new Date(video.live_date) : "",
-        brand_price: video.brand_price || "",
+        // brand_price: video.brand_price || "",
         // commission: video.commission || "",
         creator_price: video.creator_price || "",
         payment_status: video.payment_status || "",
@@ -577,7 +577,7 @@ export default function VideoManagementPage() {
         brand: "",
         video_status: "",
         live_date: "",
-        brand_price: "",
+        // brand_price: "",
         // commission: "",
         creator_price: "",
         payment_status: "",
@@ -1200,7 +1200,7 @@ export default function VideoManagementPage() {
                   }
                 />
               </FormControl>
-              <FormControl id="brand_price" isRequired>
+              {/* <FormControl id="brand_price" isRequired>
                 <FormLabel>Brand Price</FormLabel>
                 <Input
                   placeholder="Brand Price"
@@ -1210,7 +1210,7 @@ export default function VideoManagementPage() {
                   onChange={handleInputChange}
                   bg={cardBg}
                 />
-              </FormControl>
+              </FormControl> */}
               <FormControl id="creator_price" isRequired>
                 <FormLabel>Creator Price</FormLabel>
                 <Input
@@ -1704,8 +1704,8 @@ export default function VideoManagementPage() {
                     alignItems="center"
                     mb={2}
                   >
-                    <Text color="gray.600">Brand Price:</Text>
-                    <Text>{selectedVideo?.brand_price || "N/A"}</Text>
+                    {/* <Text color="gray.600">Brand Price:</Text>
+                    <Text>{selectedVideo?.brand_price || "N/A"}</Text> */}
                   </Flex>
                   <Flex justifyContent="space-between" alignItems="center">
                     <Text color="gray.600">Payment Status:</Text>
